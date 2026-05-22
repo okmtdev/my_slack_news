@@ -297,17 +297,6 @@ export default function BotFormPage() {
           <ScheduleEntriesField control={control} register={register} />
         </div>
 
-        {/* Enabled */}
-        <div className="flex items-center gap-3">
-          <input
-            type="checkbox"
-            id="enabled"
-            {...register("enabled")}
-            className="w-4 h-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-          />
-          <label htmlFor="enabled" className="text-sm font-medium text-gray-700">有効にする</label>
-        </div>
-
         <div className="flex gap-3 pt-2 border-t">
           <button
             type="submit"
