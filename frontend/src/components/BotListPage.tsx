@@ -84,7 +84,7 @@ function BotCard({ bot }: { bot: Bot }) {
           <span className={`text-[10px] font-semibold uppercase tracking-widest ${
             bot.enabled ? "text-emerald-600" : "text-zinc-400"
           }`}>
-            {bot.enabled ? "active" : "inactive"}
+            {bot.enabled ? t.statusActive : t.statusInactive}
           </span>
         </div>
         <Toggle

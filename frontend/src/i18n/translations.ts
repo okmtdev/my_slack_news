@@ -11,6 +11,8 @@ export interface Translations {
   emptyTitle: string;
   emptyAction: string;
   // bot card
+  statusActive: string;
+  statusInactive: string;
   labelKeywords: string;
   labelSchedule: string;
   labelFeeds: string;
@@ -83,6 +85,8 @@ export const translations: Record<Lang, Translations> = {
     botsCount: (n) => `${n}`,
     emptyTitle: "Bot がまだありません",
     emptyAction: "最初の Bot を作成する",
+    statusActive: "有効",
+    statusInactive: "無効",
     labelKeywords: "キーワード",
     labelSchedule: "スケジュール",
     labelFeeds: "フィード",
@@ -147,6 +151,8 @@ export const translations: Record<Lang, Translations> = {
     botsCount: (n) => `${n}`,
     emptyTitle: "No bots yet",
     emptyAction: "Create your first bot",
+    statusActive: "active",
+    statusInactive: "inactive",
     labelKeywords: "Keywords",
     labelSchedule: "Schedule",
     labelFeeds: "Feeds",
