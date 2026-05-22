@@ -187,7 +187,7 @@ export default function BotListPage() {
     <div>
       <div className="flex items-end justify-between mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-zinc-900">News Bots</h1>
+          <h1 className="text-2xl font-bold text-zinc-900">{t.pageBotsTitle}</h1>
           <p className="text-sm text-zinc-500 mt-0.5">{t.botsCount(bots?.length ?? 0)}</p>
         </div>
         <Link to="/bots/new"

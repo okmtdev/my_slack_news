@@ -4,6 +4,7 @@ export interface Translations {
   // nav
   navLogs: string;
   // bot list
+  pageBotsTitle: string;
   newBot: string;
   botsCount: (n: number) => string;
   emptyTitle: string;
@@ -75,8 +76,9 @@ export interface Translations {
 export const translations: Record<Lang, Translations> = {
   ja: {
     navLogs: "ログ",
+    pageBotsTitle: "ニュースBot",
     newBot: "+ 新規作成",
-    botsCount: (n) => `${n} bot${n !== 1 ? "s" : ""}`,
+    botsCount: (n) => `${n} 件`,
     emptyTitle: "Bot がまだありません",
     emptyAction: "最初の Bot を作成する",
     labelKeywords: "キーワード",
@@ -137,6 +139,7 @@ export const translations: Record<Lang, Translations> = {
 
   en: {
     navLogs: "Logs",
+    pageBotsTitle: "News Bots",
     newBot: "+ New Bot",
     botsCount: (n) => `${n} bot${n !== 1 ? "s" : ""}`,
     emptyTitle: "No bots yet",
