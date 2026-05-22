@@ -5,9 +5,9 @@ import BotListPage from "./components/BotListPage";
 import BotFormPage from "./components/BotFormPage";
 import LogsPage from "./components/LogsPage";
 
-function SlackIcon() {
+function SlackIcon({ size = 20 }: { size?: number }) {
   return (
-    <svg width="20" height="20" viewBox="0 0 54 54" xmlns="http://www.w3.org/2000/svg">
+    <svg width={size} height={size} viewBox="0 0 54 54" xmlns="http://www.w3.org/2000/svg">
       {/* Teal — horizontal left */}
       <path fill="#36C5F0" d="M19.7 3.3c-2.3 0-4.1 1.8-4.1 4.1s1.8 4.1 4.1 4.1h4.1V7.4c0-2.3-1.8-4.1-4.1-4.1zm0 12.3H7.7c-2.3 0-4.1 1.8-4.1 4.1 0 2.3 1.8 4.1 4.1 4.1h12c2.3 0 4.1-1.8 4.1-4.1 0-2.2-1.8-4.1-4.1-4.1z"/>
       {/* Green — vertical top */}
@@ -57,13 +57,13 @@ export default function App() {
     <div className="min-h-screen flex flex-col" style={{ backgroundColor: "var(--color-bg)" }}>
       {/* Header — Slack purple */}
       <header style={{ backgroundColor: "#4A154B" }} className="border-b border-purple-900/60">
-        <div className="max-w-5xl mx-auto px-6 h-14 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2.5 group">
-            <SlackIcon />
-            <span className="text-white font-bold text-sm">
+        <div className="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between">
+          <Link to="/" className="flex items-center gap-3 group">
+            <SlackIcon size={28} />
+            <span className="text-white font-bold text-xl tracking-tight">
               ニュースラ
             </span>
-            <span className="text-purple-300 text-[11px] font-medium hidden sm:inline">
+            <span className="text-purple-300 text-xs font-medium hidden sm:inline">
               News × Slack
             </span>
           </Link>
