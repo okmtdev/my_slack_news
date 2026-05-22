@@ -89,21 +89,22 @@ function BotCard({ bot }: { bot: Bot }) {
         <button
           onClick={() => runMutation.mutate()}
           disabled={runMutation.isPending}
-          className="flex-1 text-xs px-3 py-1.5 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 disabled:opacity-50 transition-colors"
+          className="flex-1 text-xs px-3 py-1.5 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50 transition-colors"
         >
-          {runMutation.isPending ? "実行中..." : "今すぐ実行"}
+          {runMutation.isPending ? "実行中..." : "▶ テスト実行"}
         </button>
         <Link
           to={`/bots/${bot.id}/edit`}
-          className="flex-1 text-xs px-3 py-1.5 bg-white border border-gray-200 text-gray-700 rounded-md hover:bg-gray-50 transition-colors text-center"
+          className="flex-1 text-xs px-3 py-1.5 bg-blue-50 border border-blue-200 text-blue-700 rounded-md hover:bg-blue-100 transition-colors text-center"
         >
-          編集
+          ✏️ 編集
         </Link>
         <button
           onClick={handleDelete}
-          className="text-xs px-3 py-1.5 border border-red-200 text-red-600 rounded-md hover:bg-red-50 transition-colors"
+          className="text-xs px-3 py-1.5 border border-red-200 text-red-500 rounded-md hover:bg-red-50 transition-colors"
+          title="削除"
         >
-          削除
+          🗑️
         </button>
       </div>
     </div>
