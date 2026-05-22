@@ -5,6 +5,21 @@ import BotListPage from "./components/BotListPage";
 import BotFormPage from "./components/BotFormPage";
 import LogsPage from "./components/LogsPage";
 
+function SlackIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 54 54" xmlns="http://www.w3.org/2000/svg">
+      {/* Teal — horizontal left */}
+      <path fill="#36C5F0" d="M19.7 3.3c-2.3 0-4.1 1.8-4.1 4.1s1.8 4.1 4.1 4.1h4.1V7.4c0-2.3-1.8-4.1-4.1-4.1zm0 12.3H7.7c-2.3 0-4.1 1.8-4.1 4.1 0 2.3 1.8 4.1 4.1 4.1h12c2.3 0 4.1-1.8 4.1-4.1 0-2.2-1.8-4.1-4.1-4.1z"/>
+      {/* Green — vertical top */}
+      <path fill="#2EB67D" d="M50.3 19.7c0-2.3-1.8-4.1-4.1-4.1-2.3 0-4.1 1.8-4.1 4.1v4.1h4.1c2.3 0 4.1-1.8 4.1-4.1zm-12.2 0V7.7c0-2.3-1.8-4.1-4.1-4.1-2.3 0-4.1 1.8-4.1 4.1v12c0 2.3 1.8 4.1 4.1 4.1 2.3.1 4.1-1.7 4.1-4z"/>
+      {/* Yellow — horizontal right */}
+      <path fill="#ECB22E" d="M34.3 50.7c2.3 0 4.1-1.8 4.1-4.1s-1.8-4.1-4.1-4.1h-4.1v4.1c0 2.3 1.8 4.1 4.1 4.1zm0-12.3h12c2.3 0 4.1-1.8 4.1-4.1 0-2.3-1.8-4.1-4.1-4.1h-12c-2.3 0-4.1 1.8-4.1 4.1 0 2.3 1.8 4.1 4.1 4.1z"/>
+      {/* Red — vertical bottom */}
+      <path fill="#E01E5A" d="M3.7 34.3c0 2.3 1.8 4.1 4.1 4.1 2.3 0 4.1-1.8 4.1-4.1v-4.1H7.8c-2.2 0-4.1 1.8-4.1 4.1zm12.2 0v12c0 2.3 1.8 4.1 4.1 4.1 2.3 0 4.1-1.8 4.1-4.1v-12c0-2.3-1.8-4.1-4.1-4.1-2.3 0-4.1 1.8-4.1 4.1z"/>
+    </svg>
+  );
+}
+
 function NavLink({ to, children }: { to: string; children: React.ReactNode }) {
   const { pathname } = useLocation();
   const active = pathname === to;
@@ -44,7 +59,7 @@ export default function App() {
       <header style={{ backgroundColor: "#4A154B" }} className="border-b border-purple-900/60">
         <div className="max-w-5xl mx-auto px-6 h-14 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2.5 group">
-            <span className="w-2 h-2 rounded-full bg-amber-400 group-hover:bg-amber-300 transition-colors" />
+            <SlackIcon />
             <span className="text-white font-bold text-sm tracking-widest uppercase">
               Slack News Bot
             </span>
