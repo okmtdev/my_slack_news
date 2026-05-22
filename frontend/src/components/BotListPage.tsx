@@ -185,14 +185,20 @@ export default function BotListPage() {
 
   return (
     <div>
-      <div className="flex items-end justify-between mb-8">
+      <div className="flex items-start justify-between mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-zinc-900">{t.pageBotsTitle}</h1>
-          <p className="text-sm text-zinc-500 mt-0.5">{t.botsCount(bots?.length ?? 0)}</p>
+          <div className="flex items-center gap-2.5">
+            <h1 className="text-2xl font-bold text-zinc-900">{t.pageBotsTitle}</h1>
+            <span className="inline-flex items-center justify-center w-7 h-7 rounded-full
+                             bg-amber-100 text-amber-700 text-xs font-bold">
+              {t.botsCount(bots?.length ?? 0)}
+            </span>
+          </div>
+          <p className="text-sm text-zinc-400 mt-1">{t.pageBotsSubtitle}</p>
         </div>
         <Link to="/bots/new"
           className="text-xs font-bold uppercase tracking-widest px-4 py-2 rounded
-                     text-white transition-colors"
+                     text-white transition-colors shrink-0"
           style={{ backgroundColor: "#4A154B" }}
           onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#611f69")}
           onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#4A154B")}

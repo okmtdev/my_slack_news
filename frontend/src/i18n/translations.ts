@@ -5,6 +5,7 @@ export interface Translations {
   navLogs: string;
   // bot list
   pageBotsTitle: string;
+  pageBotsSubtitle: string;
   newBot: string;
   botsCount: (n: number) => string;
   emptyTitle: string;
@@ -77,8 +78,9 @@ export const translations: Record<Lang, Translations> = {
   ja: {
     navLogs: "ログ",
     pageBotsTitle: "ニュースBot",
+    pageBotsSubtitle: "RSSとAIで、ニュースを自動でSlackへ届けます",
     newBot: "+ 新規作成",
-    botsCount: (n) => `${n} 件`,
+    botsCount: (n) => `${n}`,
     emptyTitle: "Bot がまだありません",
     emptyAction: "最初の Bot を作成する",
     labelKeywords: "キーワード",
@@ -140,8 +142,9 @@ export const translations: Record<Lang, Translations> = {
   en: {
     navLogs: "Logs",
     pageBotsTitle: "News Bots",
+    pageBotsSubtitle: "Fetch, summarize, and deliver news to Slack automatically",
     newBot: "+ New Bot",
-    botsCount: (n) => `${n} bot${n !== 1 ? "s" : ""}`,
+    botsCount: (n) => `${n}`,
     emptyTitle: "No bots yet",
     emptyAction: "Create your first bot",
     labelKeywords: "Keywords",
