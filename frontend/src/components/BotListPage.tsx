@@ -9,6 +9,25 @@ const DAY_LABELS: Record<string, string> = {
   friday: "金", saturday: "土", sunday: "日",
 };
 
+function Toggle({ enabled, loading, onToggle }: { enabled: boolean; loading: boolean; onToggle: () => void }) {
+  return (
+    <button
+      onClick={onToggle}
+      disabled={loading}
+      className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full transition-colors duration-200 focus:outline-none disabled:opacity-50 ${
+        enabled ? "bg-green-500" : "bg-gray-300"
+      }`}
+      title={enabled ? "無効にする" : "有効にする"}
+    >
+      <span
+        className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform duration-200 ${
+          enabled ? "translate-x-6" : "translate-x-1"
+        }`}
+      />
+    </button>
+  );
+}
+
 function BotCard({ bot }: { bot: Bot }) {
   const qc = useQueryClient();
 
@@ -45,18 +64,12 @@ function BotCard({ bot }: { bot: Bot }) {
   return (
     <div className={`bg-white rounded-xl shadow-sm border p-5 flex flex-col gap-3 ${!bot.enabled ? "opacity-60" : ""}`}>
       <div className="flex items-start justify-between gap-2">
-        <div>
-          <h2 className="font-semibold text-gray-900 text-base">{bot.name}</h2>
-          <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${bot.enabled ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-500"}`}>
-            {bot.enabled ? "有効" : "無効"}
-          </span>
-        </div>
-        <button
-          onClick={() => toggleMutation.mutate()}
-          className="text-xs px-3 py-1 rounded border border-gray-200 hover:bg-gray-50 transition-colors"
-        >
-          {bot.enabled ? "無効化" : "有効化"}
-        </button>
+        <h2 className="font-semibold text-gray-900 text-base">{bot.name}</h2>
+        <Toggle
+          enabled={bot.enabled}
+          loading={toggleMutation.isPending}
+          onToggle={() => toggleMutation.mutate()}
+        />
       </div>
 
       <div>
@@ -91,13 +104,13 @@ function BotCard({ bot }: { bot: Bot }) {
           disabled={runMutation.isPending}
           className="flex-1 text-xs px-3 py-1.5 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50 transition-colors"
         >
-          {runMutation.isPending ? "実行中..." : "▶ テスト実行"}
+          {runMutation.isPending ? "実行中..." : "テスト実行"}
         </button>
         <Link
           to={`/bots/${bot.id}/edit`}
           className="flex-1 text-xs px-3 py-1.5 bg-blue-50 border border-blue-200 text-blue-700 rounded-md hover:bg-blue-100 transition-colors text-center"
         >
-          ✏️ 編集
+          編集
         </Link>
         <button
           onClick={handleDelete}
