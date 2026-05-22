@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Slack News Digest</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #f5f7fa;
+      --surface: #ffffff;
+      --border: #e2e8f0;
+      --text: #1a202c;
+      --text-muted: #718096;
+      --primary: #4f46e5;
+      --primary-hover: #4338ca;
+      --success: #059669;
+      --error: #dc2626;
+      --warning: #d97706;
+      --radius: 8px;
+      --shadow: 0 1px 3px rgba(0,0,0,.1), 0 1px 2px rgba(0,0,0,.06);
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Hiragino Kaku Gothic Pro', 'Meiryo', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 24px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: var(--shadow);
+    }
+
+    .header-left { display: flex; align-items: center; gap: 12px; }
+    .header-title { font-size: 18px; font-weight: 700; color: var(--text); }
+    .header-subtitle { font-size: 13px; color: var(--text-muted); }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 12px;
+      border-radius: 99px;
+      font-size: 12px;
+      font-weight: 600;
+      background: #ecfdf5;
+      color: var(--success);
+    }
+    .status-badge.running { background: #eff6ff; color: #2563eb; }
+    .status-badge.error-state { background: #fef2f2; color: var(--error); }
+
+    .status-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+    .status-badge.running .status-dot {
+      animation: pulse 1.2s ease-in-out infinite;
+    }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+    main {
+      max-width: 900px;
+      margin: 32px auto;
+      padding: 0 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      box-shadow: var(--shadow);
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    .card-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .env-indicators {
+      display: flex;
+      gap: 8px;
+    }
+
+    .env-badge {
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-weight: 600;
+    }
+    .env-badge.ok { background: #d1fae5; color: #065f46; }
+    .env-badge.ng { background: #fee2e2; color: #991b1b; }
+
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+
+    .label-hint {
+      font-size: 12px;
+      font-weight: 400;
+      color: var(--text-muted);
+      margin-left: 6px;
+    }
+
+    .feed-list, .keyword-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .feed-row, .keyword-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    input[type="text"], input[type="url"], input[type="number"] {
+      flex: 1;
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 14px;
+      color: var(--text);
+      background: var(--surface);
+      transition: border-color .15s;
+      outline: none;
+    }
+    input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(79,70,229,.1); }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: background .15s, opacity .15s;
+    }
+    .btn:disabled { opacity: .5; cursor: not-allowed; }
+
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-primary:hover:not(:disabled) { background: var(--primary-hover); }
+
+    .btn-success { background: var(--success); color: #fff; }
+    .btn-success:hover:not(:disabled) { background: #047857; }
+
+    .btn-outline {
+      background: transparent;
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+      padding: 6px 10px;
+      font-size: 13px;
+    }
+    .btn-outline:hover:not(:disabled) { background: var(--bg); }
+
+    .btn-danger-outline {
+      background: transparent;
+      color: var(--error);
+      border: 1px solid #fca5a5;
+      padding: 6px 10px;
+      font-size: 13px;
+    }
+    .btn-danger-outline:hover:not(:disabled) { background: #fef2f2; }
+
+    .btn-add {
+      align-self: flex-start;
+      background: var(--bg);
+      color: var(--primary);
+      border: 1px dashed var(--primary);
+      padding: 6px 12px;
+      font-size: 13px;
+    }
+    .btn-add:hover { background: #eef2ff; }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    @media (max-width: 600px) { .form-row { grid-template-columns: 1fr; } }
+
+    .form-group { display: flex; flex-direction: column; }
+
+    .run-section {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .run-info { font-size: 13px; color: var(--text-muted); }
+
+    .result-box {
+      margin-top: 20px;
+      padding: 16px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: var(--bg);
+    }
+    .result-box.success { border-color: #86efac; background: #f0fdf4; }
+    .result-box.error { border-color: #fca5a5; background: #fef2f2; }
+
+    .result-meta {
+      display: flex;
+      gap: 16px;
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+      flex-wrap: wrap;
+    }
+
+    .result-summary {
+      font-size: 13px;
+      color: var(--text);
+      white-space: pre-wrap;
+      line-height: 1.7;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    th {
+      text-align: left;
+      padding: 8px 12px;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      font-weight: 600;
+      color: var(--text-muted);
+      font-size: 12px;
+    }
+    td {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text);
+    }
+    tr:last-child td { border-bottom: none; }
+
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+    .badge-success { background: #d1fae5; color: #065f46; }
+    .badge-error { background: #fee2e2; color: #991b1b; }
+
+    .toast-container {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      z-index: 1000;
+    }
+
+    .toast {
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      color: #fff;
+      box-shadow: 0 4px 12px rgba(0,0,0,.15);
+      animation: slide-in .2s ease;
+    }
+    .toast.success { background: var(--success); }
+    .toast.error { background: var(--error); }
+    .toast.info { background: var(--primary); }
+
+    @keyframes slide-in {
+      from { transform: translateX(100px); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    .spinner {
+      width: 16px; height: 16px;
+      border: 2px solid rgba(255,255,255,.4);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .empty-state {
+      text-align: center;
+      padding: 32px;
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <div>
+      <div class="header-title">📰 Slack News Digest</div>
+      <div class="header-subtitle">RSS × Gemini AI × Slack</div>
+    </div>
+  </div>
+  <div id="statusBadge" class="status-badge">
+    <div class="status-dot"></div>
+    <span>待機中</span>
+  </div>
+</header>
+
+<main>
+  <!-- Env Status -->
+  <div class="card" style="padding: 16px 24px;">
+    <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;">
+      <span style="font-size:13px; font-weight:600; color:var(--text-muted);">環境変数</span>
+      <div class="env-indicators">
+        <span id="envGemini" class="env-badge ng">Gemini API Key: 未設定</span>
+        <span id="envSlack" class="env-badge ng">Slack Webhook: 未設定</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Config -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">設定</div>
+      <div style="display:flex; gap:8px;">
+        <button class="btn btn-outline" onclick="loadConfig()">リセット</button>
+        <button class="btn btn-primary" onclick="saveConfig()">保存</button>
+      </div>
+    </div>
+
+    <div style="margin-bottom: 24px;">
+      <label>RSSフィード URL <span class="label-hint">最低1つ以上設定してください</span></label>
+      <div id="feedList" class="feed-list"></div>
+      <button class="btn btn-add" onclick="addFeedRow()">＋ フィードを追加</button>
+    </div>
+
+    <div style="margin-bottom: 24px;">
+      <label>キーワード <span class="label-hint">このワードを含む記事のみ収集します（空の場合は全記事）</span></label>
+      <div id="keywordList" class="keyword-list"></div>
+      <button class="btn btn-add" onclick="addKeywordRow()">＋ キーワードを追加</button>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>最大取得記事数</label>
+        <input type="number" id="maxArticles" min="1" max="100" value="20" style="width:120px;" />
+      </div>
+      <div class="form-group">
+        <label>Gemini モデル</label>
+        <input type="text" id="geminiModel" value="gemini-1.5-flash" />
+      </div>
+    </div>
+  </div>
+
+  <!-- Run -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">実行</div>
+    </div>
+    <div class="run-section">
+      <div class="run-info" id="runInfo">最終実行: なし</div>
+      <button id="runBtn" class="btn btn-success" onclick="runDigest()">
+        今すぐ実行
+      </button>
+    </div>
+    <div id="lastResult"></div>
+  </div>
+
+  <!-- History -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">実行履歴</div>
+    </div>
+    <div id="historyTable">
+      <div class="empty-state">まだ実行履歴がありません</div>
+    </div>
+  </div>
+
+  <!-- Cloud Scheduler Info -->
+  <div class="card" style="background:#f8faff; border-color:#c7d7fd;">
+    <div class="card-title" style="margin-bottom:12px;">☁️ Cloud Scheduler 設定</div>
+    <div style="font-size:13px; color:var(--text-muted); line-height:1.8;">
+      Cloud Run にデプロイ後、以下のコマンドで定期実行を設定できます：<br>
+      <code style="background:#e8ecff; padding:2px 8px; border-radius:4px; font-size:12px; color:#3730a3;">
+        gcloud scheduler jobs create http slack-news-job --schedule="0 8 * * *" --uri="https://&lt;CLOUD_RUN_URL&gt;/api/run" --message-body="{}" --time-zone="Asia/Tokyo"
+      </code>
+    </div>
+  </div>
+</main>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+  let pollTimer = null;
+
+  async function apiFetch(path, opts = {}) {
+    const res = await fetch(path, opts);
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({}));
+      throw new Error(body.error || `HTTP ${res.status}`);
+    }
+    return res.json();
+  }
+
+  function toast(msg, type = 'info') {
+    const el = document.createElement('div');
+    el.className = `toast ${type}`;
+    el.textContent = msg;
+    document.getElementById('toastContainer').appendChild(el);
+    setTimeout(() => el.remove(), 3500);
+  }
+
+  function formatDate(iso) {
+    if (!iso) return '-';
+    return new Date(iso).toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo' });
+  }
+
+  function formatDuration(ms) {
+    if (!ms) return '-';
+    return ms < 1000 ? `${ms}ms` : `${(ms / 1000).toFixed(1)}s`;
+  }
+
+  function setStatus(s) {
+    const badge = document.getElementById('statusBadge');
+    badge.className = 'status-badge' + (s === 'running' ? ' running' : '');
+    badge.querySelector('span').textContent = s === 'running' ? '実行中...' : '待機中';
+  }
+
+  function addFeedRow(url = '', name = '') {
+    const list = document.getElementById('feedList');
+    const row = document.createElement('div');
+    row.className = 'feed-row';
+    row.innerHTML = `
+      <input type="url" placeholder="https://example.com/feed.xml" value="${url}" style="flex:3;" />
+      <input type="text" placeholder="フィード名（任意）" value="${name}" style="flex:1;" />
+      <button class="btn btn-danger-outline" onclick="this.parentElement.remove()">削除</button>
+    `;
+    list.appendChild(row);
+  }
+
+  function addKeywordRow(value = '') {
+    const list = document.getElementById('keywordList');
+    const row = document.createElement('div');
+    row.className = 'keyword-row';
+    row.innerHTML = `
+      <input type="text" placeholder="例: AI, 機械学習, LLM" value="${value}" />
+      <button class="btn btn-danger-outline" onclick="this.parentElement.remove()">削除</button>
+    `;
+    list.appendChild(row);
+  }
+
+  function getFormConfig() {
+    const feedRows = document.querySelectorAll('#feedList .feed-row');
+    const rssFeeds = Array.from(feedRows)
+      .map(row => {
+        const inputs = row.querySelectorAll('input');
+        return { url: inputs[0].value.trim(), name: inputs[1].value.trim() || undefined };
+      })
+      .filter(f => f.url);
+
+    const kwRows = document.querySelectorAll('#keywordList .keyword-row input');
+    const keywords = Array.from(kwRows).map(i => i.value.trim()).filter(Boolean);
+
+    return {
+      rssFeeds,
+      keywords,
+      maxArticlesPerRun: parseInt(document.getElementById('maxArticles').value, 10) || 20,
+      geminiModel: document.getElementById('geminiModel').value.trim() || 'gemini-1.5-flash',
+    };
+  }
+
+  function renderConfig(cfg) {
+    document.getElementById('feedList').innerHTML = '';
+    document.getElementById('keywordList').innerHTML = '';
+
+    if (cfg.rssFeeds && cfg.rssFeeds.length > 0) {
+      cfg.rssFeeds.forEach(f => addFeedRow(f.url, f.name || ''));
+    } else {
+      addFeedRow();
+    }
+
+    if (cfg.keywords && cfg.keywords.length > 0) {
+      cfg.keywords.forEach(k => addKeywordRow(k));
+    }
+
+    document.getElementById('maxArticles').value = cfg.maxArticlesPerRun || 20;
+    document.getElementById('geminiModel').value = cfg.geminiModel || 'gemini-1.5-flash';
+  }
+
+  function renderResult(result) {
+    const box = document.getElementById('lastResult');
+    if (!result) { box.innerHTML = ''; return; }
+    const cls = result.success ? 'success' : 'error';
+    box.innerHTML = `
+      <div class="result-box ${cls}">
+        <div class="result-meta">
+          <span>📅 ${formatDate(result.timestamp)}</span>
+          <span>📊 ${result.articlesFound}件</span>
+          <span>⏱ ${formatDuration(result.durationMs)}</span>
+        </div>
+        <div class="result-summary">${result.error || result.summary || ''}</div>
+      </div>
+    `;
+  }
+
+  function renderHistory(history) {
+    const el = document.getElementById('historyTable');
+    if (!history || history.length === 0) {
+      el.innerHTML = '<div class="empty-state">まだ実行履歴がありません</div>';
+      return;
+    }
+    const rows = history.map(r => `
+      <tr>
+        <td>${formatDate(r.timestamp)}</td>
+        <td><span class="badge ${r.success ? 'badge-success' : 'badge-error'}">${r.success ? '成功' : '失敗'}</span></td>
+        <td>${r.articlesFound}</td>
+        <td>${formatDuration(r.durationMs)}</td>
+        <td style="color:var(--text-muted); max-width:300px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${r.error || ''}</td>
+      </tr>
+    `).join('');
+    el.innerHTML = `
+      <table>
+        <thead><tr><th>実行日時</th><th>結果</th><th>記事数</th><th>所要時間</th><th>エラー</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    `;
+  }
+
+  async function loadStatus() {
+    try {
+      const data = await apiFetch('/api/status');
+      setStatus(data.status);
+      renderResult(data.lastRun);
+      renderHistory(data.runHistory);
+
+      const lastRun = data.lastRun;
+      document.getElementById('runInfo').textContent =
+        lastRun ? `最終実行: ${formatDate(lastRun.timestamp)}` : '最終実行: なし';
+
+      const geminiEl = document.getElementById('envGemini');
+      const slackEl = document.getElementById('envSlack');
+      if (data.env.hasGeminiApiKey) {
+        geminiEl.className = 'env-badge ok';
+        geminiEl.textContent = 'Gemini API Key: 設定済';
+      } else {
+        geminiEl.className = 'env-badge ng';
+        geminiEl.textContent = 'Gemini API Key: 未設定';
+      }
+      if (data.env.hasSlackWebhookUrl) {
+        slackEl.className = 'env-badge ok';
+        slackEl.textContent = 'Slack Webhook: 設定済';
+      } else {
+        slackEl.className = 'env-badge ng';
+        slackEl.textContent = 'Slack Webhook: 未設定';
+      }
+
+      if (data.status === 'running') {
+        document.getElementById('runBtn').disabled = true;
+        if (!pollTimer) pollTimer = setInterval(loadStatus, 3000);
+      } else {
+        document.getElementById('runBtn').disabled = false;
+        if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+      }
+    } catch (e) {
+      console.error('Status fetch error:', e);
+    }
+  }
+
+  async function loadConfig() {
+    try {
+      const cfg = await apiFetch('/api/config');
+      renderConfig(cfg);
+    } catch (e) {
+      toast('設定の読み込みに失敗しました: ' + e.message, 'error');
+    }
+  }
+
+  async function saveConfig() {
+    try {
+      const cfg = getFormConfig();
+      await apiFetch('/api/config', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(cfg),
+      });
+      toast('設定を保存しました', 'success');
+    } catch (e) {
+      toast('保存に失敗しました: ' + e.message, 'error');
+    }
+  }
+
+  async function runDigest() {
+    const btn = document.getElementById('runBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<div class="spinner"></div> 実行中...';
+    setStatus('running');
+    if (!pollTimer) pollTimer = setInterval(loadStatus, 3000);
+
+    try {
+      const result = await apiFetch('/api/run', { method: 'POST' });
+      renderResult(result);
+      if (result.success) {
+        toast(`完了: ${result.articlesFound}件の記事をSlackに投稿しました`, 'success');
+      } else {
+        toast('エラー: ' + result.error, 'error');
+      }
+    } catch (e) {
+      toast('実行エラー: ' + e.message, 'error');
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = '今すぐ実行';
+      setStatus('idle');
+      if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+      loadStatus();
+    }
+  }
+
+  // Init
+  loadConfig();
+  loadStatus();
+</script>
+</body>
+</html>

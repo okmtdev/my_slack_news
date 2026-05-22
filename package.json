@@ -1,0 +1,13 @@
+{
+  "name": "my_slack_news",
+  "version": "1.0.0",
+  "description": "RSS news aggregator with Gemini AI summarization and Slack posting",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
