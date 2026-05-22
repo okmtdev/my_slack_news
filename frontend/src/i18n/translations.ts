@@ -77,7 +77,7 @@ export interface Translations {
 export const translations: Record<Lang, Translations> = {
   ja: {
     navLogs: "ログ",
-    pageBotsTitle: "ニュースBot",
+    pageBotsTitle: "ニュース",
     pageBotsSubtitle: "RSSとAIで、ニュースを自動でSlackへ届けます",
     newBot: "+ 新規作成",
     botsCount: (n) => `${n}`,
