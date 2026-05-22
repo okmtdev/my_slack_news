@@ -18,19 +18,8 @@ const DAYS: { value: Day; label: string }[] = [
   { value: "sunday", label: "日" },
 ];
 
-const GEMINI_MODELS = [
-  "gemini-1.5-flash",
-  "gemini-1.5-pro",
-  "gemini-2.0-flash",
-];
-
-const TIMEZONES = [
-  "Asia/Tokyo",
-  "UTC",
-  "America/New_York",
-  "America/Los_Angeles",
-  "Europe/London",
-];
+const GEMINI_MODELS = ["gemini-1.5-flash", "gemini-1.5-pro", "gemini-2.0-flash"];
+const TIMEZONES = ["Asia/Tokyo", "UTC", "America/New_York", "America/Los_Angeles", "Europe/London"];
 
 const DEFAULT_VALUES: FormValues = {
   name: "",
@@ -40,35 +29,60 @@ const DEFAULT_VALUES: FormValues = {
   gemini_api_key: "",
   gemini_model: "gemini-1.5-flash",
   slack_webhook_url: "",
-  schedule: {
-    timezone: "Asia/Tokyo",
-    entries: [{ days: ["monday"], time: "09:00" }],
-  },
+  schedule: { timezone: "Asia/Tokyo", entries: [{ days: ["monday"], time: "09:00" }] },
   lookback_days: 1,
 };
+
+function FieldLabel({ children, required }: { children: React.ReactNode; required?: boolean }) {
+  return (
+    <label className="block label-meta mb-2">
+      {children}{required && <span className="text-amber-500 ml-0.5">*</span>}
+    </label>
+  );
+}
+
+function AddButton({ onClick, label }: { onClick: () => void; label: string }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="mt-2 text-xs font-semibold text-amber-600 hover:text-amber-700 transition-colors"
+    >
+      {label}
+    </button>
+  );
+}
+
+function RemoveButton({ onClick }: { onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="px-2 text-zinc-300 hover:text-red-400 transition-colors text-base leading-none"
+    >
+      ×
+    </button>
+  );
+}
 
 function KeywordsField({ control, register }: { control: any; register: any }) {
   const { fields, append, remove } = useFieldArray({ control, name: "keywords" });
   return (
     <div>
-      <label className="block text-sm font-medium text-gray-700 mb-1">キーワード *</label>
+      <FieldLabel required>キーワード</FieldLabel>
       <div className="flex flex-col gap-2">
         {fields.map((field, i) => (
           <div key={field.id} className="flex gap-2">
             <input
               {...register(`keywords.${i}` as const, { required: true })}
-              className="flex-1 rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="input-base flex-1"
               placeholder="例: AI, LLM, 機械学習"
             />
-            {fields.length > 1 && (
-              <button type="button" onClick={() => remove(i)} className="text-red-400 hover:text-red-600 px-2">✕</button>
-            )}
+            {fields.length > 1 && <RemoveButton onClick={() => remove(i)} />}
           </div>
         ))}
       </div>
-      <button type="button" onClick={() => append("")} className="mt-2 text-xs text-indigo-600 hover:underline">
-        + キーワードを追加
-      </button>
+      <AddButton onClick={() => append("")} label="+ キーワードを追加" />
     </div>
   );
 }
@@ -77,29 +91,25 @@ function RSSFeedsField({ control, register }: { control: any; register: any }) {
   const { fields, append, remove } = useFieldArray({ control, name: "rss_feeds" });
   return (
     <div>
-      <label className="block text-sm font-medium text-gray-700 mb-1">RSSフィード *</label>
-      <div className="flex flex-col gap-3">
+      <FieldLabel required>RSSフィード</FieldLabel>
+      <div className="flex flex-col gap-2">
         {fields.map((field, i) => (
           <div key={field.id} className="flex gap-2">
             <input
               {...register(`rss_feeds.${i}.url` as const, { required: true })}
-              className="flex-1 rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="input-base flex-1"
               placeholder="https://example.com/feed.rss"
             />
             <input
               {...register(`rss_feeds.${i}.name` as const)}
-              className="w-32 rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="input-base w-32"
               placeholder="フィード名"
             />
-            {fields.length > 1 && (
-              <button type="button" onClick={() => remove(i)} className="text-red-400 hover:text-red-600 px-2">✕</button>
-            )}
+            {fields.length > 1 && <RemoveButton onClick={() => remove(i)} />}
           </div>
         ))}
       </div>
-      <button type="button" onClick={() => append({ url: "", name: "" })} className="mt-2 text-xs text-indigo-600 hover:underline">
-        + フィードを追加
-      </button>
+      <AddButton onClick={() => append({ url: "", name: "" })} label="+ フィードを追加" />
     </div>
   );
 }
@@ -108,11 +118,11 @@ function ScheduleEntriesField({ control, register }: { control: any; register: a
   const { fields, append, remove } = useFieldArray({ control, name: "schedule.entries" });
   return (
     <div>
-      <label className="block text-sm font-medium text-gray-700 mb-1">投稿スケジュール *</label>
+      <FieldLabel required>投稿スケジュール</FieldLabel>
       <div className="flex flex-col gap-3">
         {fields.map((field, i) => (
-          <div key={field.id} className="border border-gray-200 rounded-lg p-3 flex flex-col gap-2">
-            <div className="flex flex-wrap gap-1">
+          <div key={field.id} className="border border-zinc-100 rounded-lg p-3 bg-zinc-50 flex flex-col gap-3">
+            <div className="flex flex-wrap gap-1.5">
               {DAYS.map((d) => (
                 <Controller
                   key={d.value}
@@ -129,8 +139,10 @@ function ScheduleEntriesField({ control, register }: { control: any; register: a
                             : [...(f.value as Day[]), d.value];
                           f.onChange(next);
                         }}
-                        className={`w-8 h-8 rounded-full text-sm font-medium transition-colors ${
-                          checked ? "bg-indigo-600 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                        className={`w-8 h-8 rounded text-xs font-bold transition-colors ${
+                          checked
+                            ? "bg-zinc-900 text-white"
+                            : "bg-white border border-zinc-200 text-zinc-500 hover:border-zinc-400"
                         }`}
                       >
                         {d.label}
@@ -140,27 +152,42 @@ function ScheduleEntriesField({ control, register }: { control: any; register: a
                 />
               ))}
             </div>
-            <div className="flex items-center gap-2">
-              <label className="text-xs text-gray-500">時刻:</label>
+            <div className="flex items-center gap-3">
+              <span className="label-meta">時刻</span>
               <input
                 type="time"
                 {...register(`schedule.entries.${i}.time` as const, { required: true })}
-                className="rounded-md border border-gray-300 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="input-base w-36 mono"
               />
               {fields.length > 1 && (
-                <button type="button" onClick={() => remove(i)} className="ml-auto text-red-400 hover:text-red-600 text-xs">削除</button>
+                <button
+                  type="button"
+                  onClick={() => remove(i)}
+                  className="ml-auto text-xs text-zinc-400 hover:text-red-500 transition-colors"
+                >
+                  削除
+                </button>
               )}
             </div>
           </div>
         ))}
       </div>
-      <button
-        type="button"
+      <AddButton
         onClick={() => append({ days: ["monday"], time: "09:00" })}
-        className="mt-2 text-xs text-indigo-600 hover:underline"
-      >
-        + スケジュールを追加
-      </button>
+        label="+ スケジュールを追加"
+      />
+    </div>
+  );
+}
+
+function Section({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div>
+      <div className="flex items-center gap-3 mb-4">
+        <span className="label-meta">{title}</span>
+        <div className="flex-1 h-px bg-zinc-100" />
+      </div>
+      <div className="flex flex-col gap-4">{children}</div>
     </div>
   );
 }
@@ -221,94 +248,105 @@ export default function BotFormPage() {
 
   return (
     <div className="max-w-2xl mx-auto">
-      <div className="flex items-center gap-3 mb-6">
-        <button onClick={() => navigate(-1)} className="text-gray-400 hover:text-gray-600 text-lg">←</button>
-        <h1 className="text-xl font-bold text-gray-800">{isEdit ? "Bot を編集" : "新規 Bot 作成"}</h1>
+      {/* Page header */}
+      <div className="flex items-center gap-3 mb-8">
+        <button
+          onClick={() => navigate(-1)}
+          className="text-zinc-400 hover:text-zinc-700 transition-colors text-xl leading-none"
+        >
+          ←
+        </button>
+        <div>
+          <h1 className="text-2xl font-bold text-zinc-900">
+            {isEdit ? "Bot を編集" : "新規 Bot 作成"}
+          </h1>
+        </div>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="bg-white rounded-xl shadow-sm border p-6 flex flex-col gap-6">
-        {/* Name */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Bot 名 *</label>
-          <input
-            {...register("name", { required: "Bot名は必須です" })}
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            placeholder="例: AI ニュース Bot"
-          />
-          {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name.message}</p>}
-        </div>
-
-        <KeywordsField control={control} register={register} />
-        <RSSFeedsField control={control} register={register} />
-
-        {/* Gemini */}
-        <div className="grid grid-cols-2 gap-4">
-          <div className="col-span-2">
-            <label className="block text-sm font-medium text-gray-700 mb-1">Gemini API キー *</label>
+      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-8">
+        {/* Basic */}
+        <Section title="基本情報">
+          <div>
+            <FieldLabel required>Bot 名</FieldLabel>
             <input
-              type="password"
-              {...register("gemini_api_key", { required: "Gemini API キーは必須です" })}
-              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              placeholder="AIzaSy..."
+              {...register("name", { required: "Bot名は必須です" })}
+              className="input-base"
+              placeholder="例: AI ニュース Bot"
             />
+            {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name.message}</p>}
           </div>
+          <KeywordsField control={control} register={register} />
+          <RSSFeedsField control={control} register={register} />
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Gemini モデル</label>
-            <select
-              {...register("gemini_model")}
-              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            >
-              {GEMINI_MODELS.map((m) => <option key={m} value={m}>{m}</option>)}
-            </select>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">過去何日分を取得</label>
+            <FieldLabel>過去何日分を取得</FieldLabel>
             <input
               type="number"
               min={1}
               max={30}
               {...register("lookback_days", { valueAsNumber: true, min: 1, max: 30 })}
-              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="input-base w-24 mono"
+            />
+            <p className="text-xs text-zinc-400 mt-1">週次実行なら 7 を推奨</p>
+          </div>
+        </Section>
+
+        {/* Gemini */}
+        <Section title="Gemini API">
+          <div>
+            <FieldLabel required>API キー</FieldLabel>
+            <input
+              type="password"
+              {...register("gemini_api_key", { required: "Gemini API キーは必須です" })}
+              className="input-base mono"
+              placeholder="AIzaSy..."
             />
           </div>
-        </div>
+          <div>
+            <FieldLabel>モデル</FieldLabel>
+            <select {...register("gemini_model")} className="select-base w-56">
+              {GEMINI_MODELS.map((m) => <option key={m} value={m}>{m}</option>)}
+            </select>
+          </div>
+        </Section>
 
         {/* Slack */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Slack Incoming Webhook URL *</label>
-          <input
-            {...register("slack_webhook_url", { required: "Webhook URL は必須です" })}
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            placeholder="https://hooks.slack.com/services/..."
-          />
-        </div>
+        <Section title="Slack">
+          <div>
+            <FieldLabel required>Incoming Webhook URL</FieldLabel>
+            <input
+              {...register("slack_webhook_url", { required: "Webhook URL は必須です" })}
+              className="input-base mono"
+              placeholder="https://hooks.slack.com/services/..."
+            />
+          </div>
+        </Section>
 
         {/* Schedule */}
-        <div className="flex flex-col gap-4">
+        <Section title="スケジュール">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">タイムゾーン</label>
-            <select
-              {...register("schedule.timezone")}
-              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            >
+            <FieldLabel>タイムゾーン</FieldLabel>
+            <select {...register("schedule.timezone")} className="select-base w-56">
               {TIMEZONES.map((tz) => <option key={tz} value={tz}>{tz}</option>)}
             </select>
           </div>
           <ScheduleEntriesField control={control} register={register} />
-        </div>
+        </Section>
 
-        <div className="flex gap-3 pt-2 border-t">
+        {/* Submit */}
+        <div className="flex gap-3 pt-2">
           <button
             type="submit"
             disabled={isPending}
-            className="flex-1 bg-indigo-600 text-white py-2 rounded-lg text-sm font-medium hover:bg-indigo-700 disabled:opacity-50 transition-colors"
+            className="px-6 py-2.5 bg-zinc-900 text-white text-sm font-bold rounded
+                       hover:bg-zinc-700 disabled:opacity-40 transition-colors"
           >
             {isPending ? "保存中..." : isEdit ? "更新する" : "作成する"}
           </button>
           <button
             type="button"
             onClick={() => navigate(-1)}
-            className="px-6 py-2 border border-gray-200 rounded-lg text-sm text-gray-600 hover:bg-gray-50 transition-colors"
+            className="px-5 py-2.5 border border-zinc-200 rounded text-sm text-zinc-600
+                       hover:bg-zinc-50 transition-colors"
           >
             キャンセル
           </button>

@@ -9,19 +9,23 @@ const DAY_LABELS: Record<string, string> = {
   friday: "金", saturday: "土", sunday: "日",
 };
 
-function Toggle({ enabled, loading, onToggle }: { enabled: boolean; loading: boolean; onToggle: () => void }) {
+function Toggle({ enabled, loading, onToggle }: {
+  enabled: boolean;
+  loading: boolean;
+  onToggle: () => void;
+}) {
   return (
     <button
       onClick={onToggle}
       disabled={loading}
-      className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full transition-colors duration-200 focus:outline-none disabled:opacity-50 ${
-        enabled ? "bg-green-500" : "bg-gray-300"
+      className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer items-center rounded-full transition-colors duration-200 focus:outline-none disabled:opacity-50 ${
+        enabled ? "bg-emerald-500" : "bg-zinc-300"
       }`}
       title={enabled ? "無効にする" : "有効にする"}
     >
       <span
-        className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform duration-200 ${
-          enabled ? "translate-x-6" : "translate-x-1"
+        className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow transition-transform duration-200 ${
+          enabled ? "translate-x-[18px]" : "translate-x-[3px]"
         }`}
       />
     </button>
@@ -62,9 +66,21 @@ function BotCard({ bot }: { bot: Bot }) {
   };
 
   return (
-    <div className={`bg-white rounded-xl shadow-sm border p-5 flex flex-col gap-3 ${!bot.enabled ? "opacity-60" : ""}`}>
-      <div className="flex items-start justify-between gap-2">
-        <h2 className="font-semibold text-gray-900 text-base">{bot.name}</h2>
+    <div
+      className="bg-white rounded-lg flex flex-col overflow-hidden"
+      style={{
+        borderLeft: `3px solid ${bot.enabled ? "var(--color-active)" : "var(--color-inactive)"}`,
+        boxShadow: "0 1px 3px 0 rgb(0 0 0 / 0.06), 0 1px 2px -1px rgb(0 0 0 / 0.06)",
+      }}
+    >
+      {/* Card header */}
+      <div className="px-4 pt-4 pb-3 flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <h2 className="font-bold text-zinc-900 text-base leading-tight truncate">{bot.name}</h2>
+          <span className={`text-[10px] font-semibold uppercase tracking-widest ${bot.enabled ? "text-emerald-600" : "text-zinc-400"}`}>
+            {bot.enabled ? "active" : "inactive"}
+          </span>
+        </div>
         <Toggle
           enabled={bot.enabled}
           loading={toggleMutation.isPending}
@@ -72,52 +88,74 @@ function BotCard({ bot }: { bot: Bot }) {
         />
       </div>
 
-      <div>
-        <p className="text-xs text-gray-500 mb-1">キーワード</p>
-        <div className="flex flex-wrap gap-1">
-          {bot.keywords.map((kw) => (
-            <span key={kw} className="bg-indigo-50 text-indigo-700 text-xs px-2 py-0.5 rounded-full">
-              {kw}
-            </span>
+      {/* Divider */}
+      <div className="h-px bg-zinc-100 mx-4" />
+
+      {/* Body */}
+      <div className="px-4 py-3 flex flex-col gap-3 flex-1">
+        {/* Keywords */}
+        <div>
+          <p className="label-meta mb-1.5">キーワード</p>
+          <div className="flex flex-wrap gap-1">
+            {bot.keywords.map((kw) => (
+              <span
+                key={kw}
+                className="text-[11px] font-medium px-2 py-0.5 rounded"
+                style={{ background: "#fef3c7", color: "#92400e" }}
+              >
+                {kw}
+              </span>
+            ))}
+          </div>
+        </div>
+
+        {/* Schedule */}
+        <div>
+          <p className="label-meta mb-1.5">スケジュール</p>
+          {bot.schedule.entries.map((e, i) => (
+            <p key={i} className="mono text-xs text-zinc-700">
+              {e.days.map((d) => DAY_LABELS[d] ?? d).join(" · ")}
+              <span className="text-amber-500 font-semibold ml-2">{e.time}</span>
+            </p>
           ))}
+          <p className="mono text-[11px] text-zinc-400 mt-0.5">{bot.schedule.timezone}</p>
+        </div>
+
+        {/* Meta */}
+        <div className="flex gap-4">
+          <div>
+            <p className="label-meta">フィード</p>
+            <p className="mono text-xs text-zinc-600">{bot.rss_feeds.length}</p>
+          </div>
+          <div>
+            <p className="label-meta">取得期間</p>
+            <p className="mono text-xs text-zinc-600">{bot.lookback_days}d</p>
+          </div>
         </div>
       </div>
 
-      <div>
-        <p className="text-xs text-gray-500 mb-1">スケジュール ({bot.schedule.timezone})</p>
-        {bot.schedule.entries.map((e, i) => (
-          <p key={i} className="text-sm text-gray-700">
-            {e.days.map((d) => DAY_LABELS[d] ?? d).join("・")} {e.time}
-          </p>
-        ))}
-      </div>
-
-      <div>
-        <p className="text-xs text-gray-500">
-          RSSフィード: {bot.rss_feeds.length}件 / 過去{bot.lookback_days}日分
-        </p>
-      </div>
-
-      <div className="flex gap-2 pt-1 border-t">
+      {/* Actions */}
+      <div className="px-4 py-3 border-t border-zinc-100 flex items-center gap-2">
         <button
           onClick={() => runMutation.mutate()}
           disabled={runMutation.isPending}
-          className="flex-1 text-xs px-3 py-1.5 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50 transition-colors"
+          className="btn-primary flex-1"
         >
           {runMutation.isPending ? "実行中..." : "テスト実行"}
         </button>
         <Link
           to={`/bots/${bot.id}/edit`}
-          className="flex-1 text-xs px-3 py-1.5 bg-blue-50 border border-blue-200 text-blue-700 rounded-md hover:bg-blue-100 transition-colors text-center"
+          className="btn-secondary flex-1 text-center"
         >
           編集
         </Link>
-        <button
-          onClick={handleDelete}
-          className="text-xs px-3 py-1.5 border border-red-200 text-red-500 rounded-md hover:bg-red-50 transition-colors"
-          title="削除"
-        >
-          🗑️
+        <button onClick={handleDelete} className="btn-ghost-danger" title="削除">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="3 6 5 6 21 6" />
+            <path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" />
+            <path d="M10 11v6M14 11v6" />
+            <path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2" />
+          </svg>
         </button>
       </div>
     </div>
@@ -131,28 +169,54 @@ export default function BotListPage() {
   });
 
   if (isLoading) {
-    return <div className="text-center py-16 text-gray-400">読み込み中...</div>;
+    return (
+      <div className="flex items-center justify-center py-24">
+        <div className="flex gap-1.5">
+          <span className="w-2 h-2 rounded-full bg-amber-400 animate-bounce" style={{ animationDelay: "0ms" }} />
+          <span className="w-2 h-2 rounded-full bg-amber-400 animate-bounce" style={{ animationDelay: "150ms" }} />
+          <span className="w-2 h-2 rounded-full bg-amber-400 animate-bounce" style={{ animationDelay: "300ms" }} />
+        </div>
+      </div>
+    );
   }
+
   if (error) {
-    return <div className="text-center py-16 text-red-500">エラー: {(error as Error).message}</div>;
+    return (
+      <div className="text-center py-16 text-red-500 text-sm">
+        エラー: {(error as Error).message}
+      </div>
+    );
   }
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-xl font-bold text-gray-800">News Bots</h1>
+      {/* Page header */}
+      <div className="flex items-end justify-between mb-8">
+        <div>
+          <h1 className="text-2xl font-bold text-zinc-900">News Bots</h1>
+          <p className="text-sm text-zinc-500 mt-0.5">
+            {bots?.length ?? 0} bot{bots?.length !== 1 ? "s" : ""}
+          </p>
+        </div>
         <Link
           to="/bots/new"
-          className="px-4 py-2 bg-indigo-600 text-white text-sm rounded-lg hover:bg-indigo-700 transition-colors"
+          className="text-xs font-bold uppercase tracking-widest px-4 py-2 rounded
+                     bg-zinc-900 text-white hover:bg-zinc-700 transition-colors"
         >
           + 新規作成
         </Link>
       </div>
 
       {!bots?.length ? (
-        <div className="text-center py-16 text-gray-400">
-          <p className="text-4xl mb-3">📭</p>
-          <p>Botがまだありません。「新規作成」から追加してください。</p>
+        <div className="text-center py-24 border-2 border-dashed border-zinc-200 rounded-xl">
+          <p className="text-zinc-300 text-5xl mb-4 font-light">—</p>
+          <p className="text-sm text-zinc-500">Bot がまだありません</p>
+          <Link
+            to="/bots/new"
+            className="inline-block mt-4 text-xs font-semibold text-amber-600 hover:text-amber-700 underline underline-offset-2"
+          >
+            最初の Bot を作成する
+          </Link>
         </div>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

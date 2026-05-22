@@ -4,7 +4,13 @@ import { api } from "../api/client";
 import type { Bot, ExecutionLog } from "../types/bot";
 
 function formatDate(iso: string) {
-  return new Date(iso).toLocaleString("ja-JP", { timeZone: "Asia/Tokyo" });
+  return new Date(iso).toLocaleString("ja-JP", {
+    timeZone: "Asia/Tokyo",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
 }
 
 export default function LogsPage() {
@@ -18,12 +24,18 @@ export default function LogsPage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-xl font-bold text-gray-800">実行ログ</h1>
+      {/* Page header */}
+      <div className="flex items-end justify-between mb-8">
+        <div>
+          <h1 className="text-2xl font-bold text-zinc-900">実行ログ</h1>
+          <p className="text-sm text-zinc-500 mt-0.5">
+            {logsData?.total ?? "—"} 件
+          </p>
+        </div>
         <select
           value={selectedBotId}
           onChange={(e) => setSelectedBotId(e.target.value)}
-          className="rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          className="select-base w-48 text-sm"
         >
           <option value="">全ての Bot</option>
           {bots?.map((b: Bot) => (
@@ -32,45 +44,55 @@ export default function LogsPage() {
         </select>
       </div>
 
-      {isLoading && <div className="text-center py-16 text-gray-400">読み込み中...</div>}
+      {isLoading && (
+        <div className="flex items-center justify-center py-24">
+          <div className="flex gap-1.5">
+            <span className="w-2 h-2 rounded-full bg-amber-400 animate-bounce" style={{ animationDelay: "0ms" }} />
+            <span className="w-2 h-2 rounded-full bg-amber-400 animate-bounce" style={{ animationDelay: "150ms" }} />
+            <span className="w-2 h-2 rounded-full bg-amber-400 animate-bounce" style={{ animationDelay: "300ms" }} />
+          </div>
+        </div>
+      )}
 
       {!isLoading && !logsData?.logs.length && (
-        <div className="text-center py-16 text-gray-400">
-          <p className="text-4xl mb-3">📋</p>
-          <p>実行ログがありません</p>
+        <div className="text-center py-24 border-2 border-dashed border-zinc-200 rounded-xl">
+          <p className="text-zinc-300 text-5xl mb-4 font-light">—</p>
+          <p className="text-sm text-zinc-500">実行ログがありません</p>
         </div>
       )}
 
       {logsData?.logs && logsData.logs.length > 0 && (
-        <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
+        <div className="bg-white rounded-lg overflow-hidden"
+          style={{ boxShadow: "0 1px 3px 0 rgb(0 0 0 / 0.06), 0 1px 2px -1px rgb(0 0 0 / 0.06)" }}>
           <table className="w-full text-sm">
-            <thead className="bg-gray-50 border-b">
-              <tr>
-                <th className="px-4 py-3 text-left font-medium text-gray-600">Bot 名</th>
-                <th className="px-4 py-3 text-left font-medium text-gray-600">ステータス</th>
-                <th className="px-4 py-3 text-left font-medium text-gray-600">記事数</th>
-                <th className="px-4 py-3 text-left font-medium text-gray-600">メッセージ</th>
-                <th className="px-4 py-3 text-left font-medium text-gray-600">実行時刻</th>
+            <thead>
+              <tr className="border-b border-zinc-100">
+                <th className="px-5 py-3 text-left label-meta">Bot</th>
+                <th className="px-5 py-3 text-left label-meta">ステータス</th>
+                <th className="px-5 py-3 text-left label-meta">記事数</th>
+                <th className="px-5 py-3 text-left label-meta">メッセージ</th>
+                <th className="px-5 py-3 text-left label-meta">実行時刻</th>
               </tr>
             </thead>
-            <tbody className="divide-y">
+            <tbody className="divide-y divide-zinc-50">
               {logsData.logs.map((log: ExecutionLog) => (
-                <tr key={log.id} className="hover:bg-gray-50">
-                  <td className="px-4 py-3 font-medium text-gray-800">{log.bot_name}</td>
-                  <td className="px-4 py-3">
-                    <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
-                      log.status === "success"
-                        ? "bg-green-100 text-green-700"
-                        : "bg-red-100 text-red-700"
-                    }`}>
-                      {log.status === "success" ? "成功" : "エラー"}
+                <tr key={log.id} className="hover:bg-zinc-50 transition-colors">
+                  <td className="px-5 py-3 font-semibold text-zinc-800">{log.bot_name}</td>
+                  <td className="px-5 py-3">
+                    <span className={`inline-flex items-center gap-1.5 text-xs font-semibold`}>
+                      <span className={`w-1.5 h-1.5 rounded-full ${
+                        log.status === "success" ? "bg-emerald-500" : "bg-red-500"
+                      }`} />
+                      <span className={log.status === "success" ? "text-emerald-700" : "text-red-600"}>
+                        {log.status === "success" ? "success" : "error"}
+                      </span>
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-gray-600">{log.articles_count}</td>
-                  <td className="px-4 py-3 text-gray-600 max-w-xs truncate" title={log.message}>
+                  <td className="px-5 py-3 mono text-zinc-500">{log.articles_count}</td>
+                  <td className="px-5 py-3 text-zinc-500 max-w-xs truncate" title={log.message}>
                     {log.message}
                   </td>
-                  <td className="px-4 py-3 text-gray-500 whitespace-nowrap">
+                  <td className="px-5 py-3 mono text-xs text-zinc-400 whitespace-nowrap">
                     {formatDate(log.executed_at)}
                   </td>
                 </tr>
