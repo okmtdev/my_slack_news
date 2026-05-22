@@ -60,8 +60,11 @@ export default function App() {
         <div className="max-w-5xl mx-auto px-6 h-14 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2.5 group">
             <SlackIcon />
-            <span className="text-white font-bold text-sm tracking-widest uppercase">
-              Slack News Bot
+            <span className="text-white font-bold text-sm">
+              ニュースラ
+            </span>
+            <span className="text-purple-300 text-[11px] font-medium hidden sm:inline">
+              News × Slack
             </span>
           </Link>
           <nav className="flex items-center gap-1">
@@ -85,7 +88,7 @@ export default function App() {
 
       {/* Footer */}
       <footer className="border-t border-zinc-200 py-4 text-center">
-        <span className="text-[11px] text-zinc-400 tracking-wide">Slack News Bot</span>
+        <span className="text-[11px] text-zinc-400 tracking-wide">ニュースラ — News × Slack</span>
       </footer>
     </div>
   );
