@@ -1,8 +1,12 @@
-'use strict';
+import axios from 'axios';
+import { FeedItem } from '../types';
 
-const { post } = require('./http');
-
-async function postToSlack(webhookUrl, summary, items, keywords) {
+export async function postToSlack(
+  webhookUrl: string,
+  summary: string,
+  items: FeedItem[],
+  keywords: string[]
+): Promise<void> {
   const now = new Date().toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo' });
 
   const payload = {
@@ -17,7 +21,10 @@ async function postToSlack(webhookUrl, summary, items, keywords) {
       },
       {
         type: 'section',
-        text: { type: 'mrkdwn', text: summary },
+        text: {
+          type: 'mrkdwn',
+          text: summary,
+        },
       },
       { type: 'divider' },
       {
@@ -32,7 +39,7 @@ async function postToSlack(webhookUrl, summary, items, keywords) {
     ],
   };
 
-  await post(webhookUrl, payload);
+  await axios.post(webhookUrl, payload, {
+    headers: { 'Content-Type': 'application/json' },
+  });
 }
-
-module.exports = { postToSlack };
