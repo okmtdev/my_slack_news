@@ -1,9 +1,10 @@
-import { fetchFeedItems } from './rss';
-import { summarizeNews } from './gemini';
-import { postToSlack } from './slack';
-import { AppConfig, RunResult } from '../types';
+'use strict';
 
-export async function runNewsDigest(config: AppConfig): Promise<RunResult> {
+const { fetchFeedItems } = require('./rss');
+const { summarizeNews } = require('./gemini');
+const { postToSlack } = require('./slack');
+
+async function runNewsDigest(config) {
   const startTime = Date.now();
   const timestamp = new Date().toISOString();
 
@@ -12,9 +13,11 @@ export async function runNewsDigest(config: AppConfig): Promise<RunResult> {
 
   if (!geminiApiKey) throw new Error('GEMINI_API_KEY is not set');
   if (!slackWebhookUrl) throw new Error('SLACK_WEBHOOK_URL is not set');
-  if (config.rssFeeds.length === 0) throw new Error('RSS feeds are not configured');
+  if (!config.rssFeeds || config.rssFeeds.length === 0) throw new Error('RSS feeds are not configured');
 
-  console.log(`[News] Fetching from ${config.rssFeeds.length} feeds, keywords: [${config.keywords.join(', ')}]`);
+  console.log(
+    `[News] Fetching from ${config.rssFeeds.length} feeds, keywords: [${config.keywords.join(', ')}]`
+  );
 
   const items = await fetchFeedItems(config.rssFeeds, config.keywords, config.maxArticlesPerRun);
   console.log(`[News] ${items.length} matching articles found`);
@@ -43,3 +46,5 @@ export async function runNewsDigest(config: AppConfig): Promise<RunResult> {
     durationMs: Date.now() - startTime,
   };
 }
+
+module.exports = { runNewsDigest };

@@ -1,18 +1,19 @@
-import fs from 'fs';
-import path from 'path';
-import { AppConfig } from './types';
+'use strict';
+
+const fs = require('node:fs');
+const path = require('node:path');
 
 const CONFIG_PATH = path.join(process.cwd(), 'data', 'config.json');
 
-const DEFAULT_CONFIG: AppConfig = {
+const DEFAULT_CONFIG = {
   rssFeeds: [],
   keywords: [],
   maxArticlesPerRun: 20,
   geminiModel: 'gemini-1.5-flash',
 };
 
-export function loadConfig(): AppConfig {
-  let config: AppConfig = { ...DEFAULT_CONFIG };
+function loadConfig() {
+  let config = { ...DEFAULT_CONFIG };
 
   try {
     if (fs.existsSync(CONFIG_PATH)) {
@@ -25,11 +26,11 @@ export function loadConfig(): AppConfig {
 
   if (process.env.RSS_FEED_URLS) {
     config.rssFeeds = process.env.RSS_FEED_URLS.split(',')
-      .map(url => ({ url: url.trim() }))
-      .filter(f => f.url);
+      .map((url) => ({ url: url.trim() }))
+      .filter((f) => f.url);
   }
   if (process.env.KEYWORDS) {
-    config.keywords = process.env.KEYWORDS.split(',').map(k => k.trim()).filter(Boolean);
+    config.keywords = process.env.KEYWORDS.split(',').map((k) => k.trim()).filter(Boolean);
   }
   if (process.env.GEMINI_MODEL) {
     config.geminiModel = process.env.GEMINI_MODEL;
@@ -42,10 +43,10 @@ export function loadConfig(): AppConfig {
   return config;
 }
 
-export function saveConfig(config: AppConfig): void {
+function saveConfig(config) {
   const dir = path.dirname(CONFIG_PATH);
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true });
-  }
+  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
   fs.writeFileSync(CONFIG_PATH, JSON.stringify(config, null, 2), 'utf-8');
 }
+
+module.exports = { loadConfig, saveConfig };
