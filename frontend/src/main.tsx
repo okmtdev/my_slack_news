@@ -3,6 +3,7 @@ import ReactDOM from "react-dom/client";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
+import { LangProvider } from "./i18n/LangContext";
 import App from "./App";
 import "./index.css";
 
@@ -14,8 +15,10 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
-        <App />
-        <Toaster position="top-right" />
+        <LangProvider>
+          <App />
+          <Toaster position="top-right" />
+        </LangProvider>
       </BrowserRouter>
     </QueryClientProvider>
   </React.StrictMode>
