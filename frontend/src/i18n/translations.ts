@@ -1,15 +1,84 @@
-export const translations = {
-  ja: {
-    // nav
-    navLogs: "ログ",
+export type Lang = "ja" | "en";
 
-    // bot list
+export interface Translations {
+  // nav
+  navLogs: string;
+  // bot list
+  newBot: string;
+  botsCount: (n: number) => string;
+  emptyTitle: string;
+  emptyAction: string;
+  // bot card
+  labelKeywords: string;
+  labelSchedule: string;
+  labelFeeds: string;
+  labelLookback: string;
+  btnTestRun: string;
+  btnRunning: string;
+  btnEdit: string;
+  confirmDelete: (name: string) => string;
+  toastDeleted: string;
+  toastRunSuccess: (msg: string) => string;
+  // form — page
+  pageTitleCreate: string;
+  pageTitleEdit: string;
+  sectionBasic: string;
+  sectionGemini: string;
+  sectionSlack: string;
+  sectionSchedule: string;
+  // form — labels
+  labelBotName: string;
+  labelKeywordsField: string;
+  labelRssFeeds: string;
+  labelLookbackDays: string;
+  lookbackHint: string;
+  labelGeminiKey: string;
+  labelGeminiModel: string;
+  labelSlackWebhook: string;
+  labelTimezone: string;
+  labelScheduleEntries: string;
+  labelTime: string;
+  // form — placeholders
+  phBotName: string;
+  phKeyword: string;
+  phRssUrl: string;
+  phFeedName: string;
+  phGeminiKey: string;
+  phWebhook: string;
+  // form — actions
+  addKeyword: string;
+  addFeed: string;
+  addSchedule: string;
+  removeSchedule: string;
+  btnSave: string;
+  btnUpdate: string;
+  btnSaving: string;
+  btnCancel: string;
+  // form — validation
+  errBotName: string;
+  errGeminiKey: string;
+  errWebhook: string;
+  // form — toast
+  toastCreated: string;
+  toastUpdated: string;
+  // logs
+  pageLogsTitle: string;
+  allBots: string;
+  colBot: string;
+  colStatus: string;
+  colArticles: string;
+  colMessage: string;
+  colTime: string;
+  emptyLogs: string;
+}
+
+export const translations: Record<Lang, Translations> = {
+  ja: {
+    navLogs: "ログ",
     newBot: "+ 新規作成",
-    botsCount: (n: number) => `${n} bot${n !== 1 ? "s" : ""}`,
+    botsCount: (n) => `${n} bot${n !== 1 ? "s" : ""}`,
     emptyTitle: "Bot がまだありません",
     emptyAction: "最初の Bot を作成する",
-
-    // bot card
     labelKeywords: "キーワード",
     labelSchedule: "スケジュール",
     labelFeeds: "フィード",
@@ -17,19 +86,15 @@ export const translations = {
     btnTestRun: "テスト実行",
     btnRunning: "実行中...",
     btnEdit: "編集",
-    confirmDelete: (name: string) => `「${name}」を削除しますか？`,
+    confirmDelete: (name) => `「${name}」を削除しますか？`,
     toastDeleted: "Bot を削除しました",
-    toastRunSuccess: (msg: string) => msg,
-
-    // form — page
+    toastRunSuccess: (msg) => msg,
     pageTitleCreate: "新規 Bot 作成",
     pageTitleEdit: "Bot を編集",
     sectionBasic: "基本情報",
     sectionGemini: "Gemini API",
     sectionSlack: "Slack",
     sectionSchedule: "スケジュール",
-
-    // form — labels
     labelBotName: "Bot 名",
     labelKeywordsField: "キーワード",
     labelRssFeeds: "RSSフィード",
@@ -41,16 +106,12 @@ export const translations = {
     labelTimezone: "タイムゾーン",
     labelScheduleEntries: "投稿スケジュール",
     labelTime: "時刻",
-
-    // form — placeholders
     phBotName: "例: AI ニュース Bot",
     phKeyword: "例: AI, LLM, 機械学習",
     phRssUrl: "https://example.com/feed.rss",
     phFeedName: "フィード名",
     phGeminiKey: "AIzaSy...",
     phWebhook: "https://hooks.slack.com/services/...",
-
-    // form — actions
     addKeyword: "+ キーワードを追加",
     addFeed: "+ フィードを追加",
     addSchedule: "+ スケジュールを追加",
@@ -59,17 +120,11 @@ export const translations = {
     btnUpdate: "更新する",
     btnSaving: "保存中...",
     btnCancel: "キャンセル",
-
-    // form — validation
     errBotName: "Bot名は必須です",
     errGeminiKey: "Gemini API キーは必須です",
     errWebhook: "Webhook URL は必須です",
-
-    // form — toast
     toastCreated: "Bot を作成しました",
     toastUpdated: "Bot を更新しました",
-
-    // logs
     pageLogsTitle: "実行ログ",
     allBots: "全ての Bot",
     colBot: "Bot",
@@ -81,16 +136,11 @@ export const translations = {
   },
 
   en: {
-    // nav
     navLogs: "Logs",
-
-    // bot list
     newBot: "+ New Bot",
-    botsCount: (n: number) => `${n} bot${n !== 1 ? "s" : ""}`,
+    botsCount: (n) => `${n} bot${n !== 1 ? "s" : ""}`,
     emptyTitle: "No bots yet",
     emptyAction: "Create your first bot",
-
-    // bot card
     labelKeywords: "Keywords",
     labelSchedule: "Schedule",
     labelFeeds: "Feeds",
@@ -98,19 +148,15 @@ export const translations = {
     btnTestRun: "Test Run",
     btnRunning: "Running...",
     btnEdit: "Edit",
-    confirmDelete: (name: string) => `Delete "${name}"?`,
+    confirmDelete: (name) => `Delete "${name}"?`,
     toastDeleted: "Bot deleted",
-    toastRunSuccess: (msg: string) => msg,
-
-    // form — page
+    toastRunSuccess: (msg) => msg,
     pageTitleCreate: "New Bot",
     pageTitleEdit: "Edit Bot",
     sectionBasic: "Basic",
     sectionGemini: "Gemini API",
     sectionSlack: "Slack",
     sectionSchedule: "Schedule",
-
-    // form — labels
     labelBotName: "Bot Name",
     labelKeywordsField: "Keywords",
     labelRssFeeds: "RSS Feeds",
@@ -122,16 +168,12 @@ export const translations = {
     labelTimezone: "Timezone",
     labelScheduleEntries: "Post Schedule",
     labelTime: "Time",
-
-    // form — placeholders
     phBotName: "e.g. AI News Bot",
     phKeyword: "e.g. AI, LLM, machine learning",
     phRssUrl: "https://example.com/feed.rss",
     phFeedName: "Feed name",
     phGeminiKey: "AIzaSy...",
     phWebhook: "https://hooks.slack.com/services/...",
-
-    // form — actions
     addKeyword: "+ Add keyword",
     addFeed: "+ Add feed",
     addSchedule: "+ Add schedule",
@@ -140,17 +182,11 @@ export const translations = {
     btnUpdate: "Update",
     btnSaving: "Saving...",
     btnCancel: "Cancel",
-
-    // form — validation
     errBotName: "Bot name is required",
     errGeminiKey: "Gemini API key is required",
     errWebhook: "Webhook URL is required",
-
-    // form — toast
     toastCreated: "Bot created",
     toastUpdated: "Bot updated",
-
-    // logs
     pageLogsTitle: "Execution Logs",
     allBots: "All Bots",
     colBot: "Bot",
@@ -160,7 +196,4 @@ export const translations = {
     colTime: "Executed At",
     emptyLogs: "No execution logs",
   },
-} as const;
-
-export type Lang = keyof typeof translations;
-export type Translations = typeof translations.ja;
+};
