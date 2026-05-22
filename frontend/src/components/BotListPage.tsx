@@ -142,7 +142,7 @@ function BotCard({ bot }: { bot: Bot }) {
         >
           {runMutation.isPending ? t.btnRunning : t.btnTestRun}
         </button>
-        <Link to={`/bots/${bot.id}/edit`} className="flex-1 text-center text-xs font-semibold px-3 py-1.5 rounded bg-zinc-800 text-white hover:bg-zinc-700 transition-colors">
+        <Link to={`/bots/${bot.id}/edit`} className="flex-1 text-center text-xs font-semibold px-3 py-1.5 rounded bg-blue-600 text-white hover:bg-blue-700 transition-colors">
           {t.btnEdit}
         </Link>
         <button onClick={handleDelete} className="btn-ghost-danger" title="Delete">
