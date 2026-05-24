@@ -2,7 +2,8 @@ from __future__ import annotations
 
 from typing import List
 
-import google.generativeai as genai
+from google import genai
+from google.genai import types
 
 
 def build_image_prompt(keywords: List[str], articles: List[dict]) -> str:
@@ -23,15 +24,21 @@ def build_image_prompt(keywords: List[str], articles: List[dict]) -> str:
 
 def generate_image(prompt: str, api_key: str, model_name: str) -> bytes:
     """Generate an image with the Gemini image model. Returns raw image bytes."""
-    genai.configure(api_key=api_key)
-    model = genai.GenerativeModel(model_name)
-    response = model.generate_content(prompt)
+    client = genai.Client(api_key=api_key)
 
-    for candidate in getattr(response, "candidates", []) or []:
+    response = client.models.generate_content(
+        model=model_name,
+        contents=prompt,
+        config=types.GenerateContentConfig(
+            response_modalities=["TEXT", "IMAGE"],
+        ),
+    )
+
+    for candidate in response.candidates or []:
         content = getattr(candidate, "content", None)
         if not content:
             continue
-        for part in getattr(content, "parts", []) or []:
+        for part in getattr(content, "parts", None) or []:
             inline = getattr(part, "inline_data", None)
             data = getattr(inline, "data", None) if inline else None
             if data:

@@ -20,9 +20,12 @@ const DAY_LABELS_EN: Record<Day, string> = {
 };
 
 const GEMINI_MODELS: { value: string; label: string }[] = [
-  { value: "gemini-1.5-flash", label: "Gemini 1.5 Flash" },
-  { value: "gemini-1.5-pro", label: "Gemini 1.5 Pro" },
+  // Recommended / current
+  { value: "gemini-2.5-flash", label: "Gemini 2.5 Flash" },
+  { value: "gemini-2.5-pro", label: "Gemini 2.5 Pro" },
+  { value: "gemini-2.5-flash-lite", label: "Gemini 2.5 Flash-Lite" },
   { value: "gemini-2.0-flash", label: "Gemini 2.0 Flash" },
+  // User-specified next-gen (may require account access)
   { value: "gemini-3-flash-lite", label: "Gemini 3 Flash-Lite" },
   { value: "gemini-3-flash", label: "Gemini 3 Flash" },
   { value: "gemini-3.1-pro", label: "Gemini 3.1 Pro" },
@@ -30,8 +33,8 @@ const GEMINI_MODELS: { value: string; label: string }[] = [
 ];
 
 const GEMINI_IMAGE_MODELS: { value: string; label: string }[] = [
-  { value: "nano-banana-2", label: "Nano Banana 2" },
-  { value: "nano-banana-pro", label: "Nano Banana Pro" },
+  { value: "gemini-2.5-flash-image-preview", label: "Nano Banana 2 (gemini-2.5-flash-image-preview)" },
+  { value: "gemini-2.5-flash-image", label: "Nano Banana Pro (gemini-2.5-flash-image)" },
 ];
 const TIMEZONES = ["Asia/Tokyo", "UTC", "America/New_York", "America/Los_Angeles", "Europe/London"];
 
@@ -41,9 +44,9 @@ const DEFAULT_VALUES: FormValues = {
   keywords: [],
   rss_feeds: [{ url: "", name: "" }],
   gemini_api_key: "",
-  gemini_model: "gemini-1.5-flash",
+  gemini_model: "gemini-2.5-flash",
   enable_image: false,
-  gemini_image_model: "nano-banana-2",
+  gemini_image_model: "gemini-2.5-flash-image-preview",
   slack_webhook_url: "",
   schedule: { timezone: "Asia/Tokyo", entries: [{ days: ["monday"], time: "09:00" }] },
   lookback_days: 1,

@@ -47,9 +47,9 @@ class BotBase(BaseModel):
     keywords: List[str]
     rss_feeds: List[RSSFeed]
     gemini_api_key: str
-    gemini_model: str = "gemini-1.5-flash"
+    gemini_model: str = "gemini-2.5-flash"
     enable_image: bool = False
-    gemini_image_model: str = "nano-banana-2"
+    gemini_image_model: str = "gemini-2.5-flash-image-preview"
     slack_webhook_url: str
     schedule: BotSchedule
     lookback_days: int = 1
