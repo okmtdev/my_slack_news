@@ -22,6 +22,7 @@ const EXCLUDED_PATTERNS = [
   "-2.0",
   "flash-lite",
   "flash-8b",
+  "computer-use",
 ];
 
 function isUsable(m: GeminiModelInfo): boolean {

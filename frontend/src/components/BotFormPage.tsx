@@ -267,17 +267,27 @@ export default function BotFormPage() {
           <div>
             <FieldLabel>{t.labelGeminiModel}</FieldLabel>
             <div className="flex items-center gap-2">
-              <input
-                list="gemini-text-models"
-                {...register("gemini_model")}
-                className="input-base mono w-72"
-                placeholder="gemini-2.5-flash"
+              <Controller
+                control={control}
+                name="gemini_model"
+                render={({ field }) => {
+                  const isCustom = !!field.value && !GEMINI_MODELS.some((m) => m.value === field.value);
+                  return (
+                    <select
+                      value={field.value}
+                      onChange={field.onChange}
+                      className="select-base mono w-72"
+                    >
+                      {GEMINI_MODELS.map((m) => (
+                        <option key={m.value} value={m.value}>{m.label}</option>
+                      ))}
+                      {isCustom && (
+                        <option value={field.value}>{field.value}</option>
+                      )}
+                    </select>
+                  );
+                }}
               />
-              <datalist id="gemini-text-models">
-                {GEMINI_MODELS.map((m) => (
-                  <option key={m.value} value={m.value}>{m.label}</option>
-                ))}
-              </datalist>
               <button
                 type="button"
                 onClick={() => setModelsModalOpen(true)}
