@@ -24,14 +24,21 @@ def run_bot(bot_id: str) -> RunResult:
     start = time.time()
     try:
         articles = fetch_articles(bot.rss_feeds, bot.keywords, bot.lookback_days)
+        if bot.keywords:
+            fetch_msg = (
+                f"RSS {len(bot.rss_feeds)} 件から取得し、"
+                f"キーワード {', '.join(bot.keywords)} に該当する {len(articles)} 件を抽出"
+            )
+        else:
+            fetch_msg = (
+                f"RSS {len(bot.rss_feeds)} 件から最新記事 {len(articles)} 件を取得"
+                "（キーワード未設定）"
+            )
         steps.append(LogStep(
             name="fetch_articles",
             label="記事取得",
             status="success",
-            message=(
-                f"RSS {len(bot.rss_feeds)} 件から取得し、"
-                f"キーワード {', '.join(bot.keywords)} に該当する {len(articles)} 件を抽出"
-            ),
+            message=fetch_msg,
             duration_ms=int((time.time() - start) * 1000),
         ))
     except Exception as e:
@@ -59,7 +66,11 @@ def run_bot(bot_id: str) -> RunResult:
             status="skipped",
             message="該当記事なしのためスキップ",
         ))
-        msg = f"キーワード {', '.join(bot.keywords)} に該当する新着記事はありませんでした"
+        msg = (
+            f"キーワード {', '.join(bot.keywords)} に該当する新着記事はありませんでした"
+            if bot.keywords
+            else "フィードから新着記事を取得できませんでした"
+        )
         _save_log(bot, "full_run", "success", msg, 0, steps)
         return RunResult(success=True, message=msg, articles_count=0, steps=steps)
 

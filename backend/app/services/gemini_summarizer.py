@@ -19,11 +19,11 @@ def summarize(
         for a in articles[:20]  # limit to avoid token overflow
     )
 
+    keyword_section = f"キーワード: {', '.join(keywords)}\n\n" if keywords else ""
+
     prompt = f"""以下のニュース記事を日本語でまとめてSlackに投稿する文章を作成してください。
 
-キーワード: {', '.join(keywords)}
-
-記事一覧:
+{keyword_section}記事一覧:
 {articles_text}
 
 要件:

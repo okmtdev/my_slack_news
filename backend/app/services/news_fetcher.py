@@ -36,7 +36,7 @@ def fetch_articles(
                 summary = getattr(entry, "summary", "") or getattr(entry, "description", "")
                 link = getattr(entry, "link", "")
                 text = f"{title} {summary}".lower()
-                if any(kw in text for kw in lower_keywords):
+                if not lower_keywords or any(kw in text for kw in lower_keywords):
                     articles.append(
                         {
                             "title": title,

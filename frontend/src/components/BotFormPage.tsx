@@ -25,7 +25,7 @@ const TIMEZONES = ["Asia/Tokyo", "UTC", "America/New_York", "America/Los_Angeles
 const DEFAULT_VALUES: FormValues = {
   name: "",
   enabled: true,
-  keywords: [""],
+  keywords: [],
   rss_feeds: [{ url: "", name: "" }],
   gemini_api_key: "",
   gemini_model: "gemini-1.5-flash",
@@ -47,16 +47,14 @@ function KeywordsField({ control, register }: { control: any; register: any }) {
   const { fields, append, remove } = useFieldArray({ control, name: "keywords" });
   return (
     <div>
-      <FieldLabel required>{t.labelKeywordsField}</FieldLabel>
+      <FieldLabel>{t.labelKeywordsField}</FieldLabel>
       <div className="flex flex-col gap-2">
         {fields.map((field, i) => (
           <div key={field.id} className="flex gap-2">
-            <input {...register(`keywords.${i}` as const, { required: true })}
+            <input {...register(`keywords.${i}` as const)}
               className="input-base flex-1" placeholder={t.phKeyword} />
-            {fields.length > 1 && (
-              <button type="button" onClick={() => remove(i)}
-                className="px-2 text-zinc-300 hover:text-red-400 transition-colors text-base leading-none">×</button>
-            )}
+            <button type="button" onClick={() => remove(i)}
+              className="px-2 text-zinc-300 hover:text-red-400 transition-colors text-base leading-none">×</button>
           </div>
         ))}
       </div>
@@ -64,6 +62,7 @@ function KeywordsField({ control, register }: { control: any; register: any }) {
         className="mt-2 text-xs font-semibold text-amber-600 hover:text-amber-700 transition-colors">
         {t.addKeyword}
       </button>
+      <p className="text-xs text-zinc-400 mt-1.5">{t.keywordsHint}</p>
     </div>
   );
 }

@@ -35,6 +35,7 @@ export interface Translations {
   // form — labels
   labelBotName: string;
   labelKeywordsField: string;
+  keywordsHint: string;
   labelRssFeeds: string;
   labelLookbackDays: string;
   lookbackHint: string;
@@ -80,6 +81,12 @@ export interface Translations {
   emptyLogs: string;
   runTypeFullRun: string;
   runTypeTestMessage: string;
+  modalTestRunTitle: string;
+  modalTestRunSubtitle: string;
+  optionSendTestTitle: string;
+  optionSendTestDesc: string;
+  optionFullRunTitle: string;
+  optionFullRunDesc: string;
   stepStatusSuccess: string;
   stepStatusError: string;
   stepStatusSkipped: string;
@@ -117,6 +124,7 @@ export const translations: Record<Lang, Translations> = {
     sectionSchedule: "スケジュール",
     labelBotName: "Bot 名",
     labelKeywordsField: "キーワード",
+    keywordsHint: "未設定の場合は、フィードの最新記事をすべて取得します",
     labelRssFeeds: "RSSフィード",
     labelLookbackDays: "過去何日分を取得",
     lookbackHint: "週次実行なら 7 を推奨",
@@ -157,6 +165,12 @@ export const translations: Record<Lang, Translations> = {
     emptyLogs: "実行ログがありません",
     runTypeFullRun: "本実行",
     runTypeTestMessage: "送信テスト",
+    modalTestRunTitle: "テスト実行",
+    modalTestRunSubtitle: "実行する内容を選んでください",
+    optionSendTestTitle: "送信テスト",
+    optionSendTestDesc: "固定のテストメッセージをSlackに送信して、Webhookが正しく動作するか確認します。記事の取得や要約は行いません。",
+    optionFullRunTitle: "本実行",
+    optionFullRunDesc: "RSSから記事を取得 → Geminiで要約 → Slackへ投稿します。スケジュール実行と同じ動作です。",
     stepStatusSuccess: "成功",
     stepStatusError: "失敗",
     stepStatusSkipped: "スキップ",
@@ -193,6 +207,7 @@ export const translations: Record<Lang, Translations> = {
     sectionSchedule: "Schedule",
     labelBotName: "Bot Name",
     labelKeywordsField: "Keywords",
+    keywordsHint: "If empty, all latest articles from the feeds will be fetched",
     labelRssFeeds: "RSS Feeds",
     labelLookbackDays: "Lookback Days",
     lookbackHint: "Use 7 for weekly runs",
@@ -233,6 +248,12 @@ export const translations: Record<Lang, Translations> = {
     emptyLogs: "No execution logs",
     runTypeFullRun: "Full Run",
     runTypeTestMessage: "Send Test",
+    modalTestRunTitle: "Test Run",
+    modalTestRunSubtitle: "Choose what to run",
+    optionSendTestTitle: "Send Test",
+    optionSendTestDesc: "Sends a fixed test message to Slack to verify the webhook is working. No fetching or summarizing.",
+    optionFullRunTitle: "Full Run",
+    optionFullRunDesc: "Fetches articles from RSS → summarizes with Gemini → posts to Slack. Same as the scheduled run.",
     stepStatusSuccess: "Success",
     stepStatusError: "Failed",
     stepStatusSkipped: "Skipped",
