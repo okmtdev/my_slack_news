@@ -41,6 +41,9 @@ export interface Translations {
   lookbackHint: string;
   labelGeminiKey: string;
   labelGeminiModel: string;
+  labelEnableImage: string;
+  labelImageModel: string;
+  imageHint: string;
   labelSlackWebhook: string;
   labelTimezone: string;
   labelScheduleEntries: string;
@@ -129,7 +132,10 @@ export const translations: Record<Lang, Translations> = {
     labelLookbackDays: "過去何日分を取得",
     lookbackHint: "週次実行なら 7 を推奨",
     labelGeminiKey: "API キー",
-    labelGeminiModel: "モデル",
+    labelGeminiModel: "テキスト要約モデル",
+    labelEnableImage: "画像も投稿する",
+    labelImageModel: "画像生成モデル",
+    imageHint: "Geminiで生成した画像をサマリーと一緒にSlackへ投稿します。サーバーの PUBLIC_BASE_URL（HTTPS の公開URL）が設定されている必要があります。",
     labelSlackWebhook: "Incoming Webhook URL",
     labelTimezone: "タイムゾーン",
     labelScheduleEntries: "投稿スケジュール",
@@ -212,7 +218,10 @@ export const translations: Record<Lang, Translations> = {
     labelLookbackDays: "Lookback Days",
     lookbackHint: "Use 7 for weekly runs",
     labelGeminiKey: "API Key",
-    labelGeminiModel: "Model",
+    labelGeminiModel: "Text Summarization Model",
+    labelEnableImage: "Also post an image",
+    labelImageModel: "Image Generation Model",
+    imageHint: "Generates an image with Gemini and posts it alongside the summary. PUBLIC_BASE_URL (a public HTTPS URL of this server) must be configured.",
     labelSlackWebhook: "Incoming Webhook URL",
     labelTimezone: "Timezone",
     labelScheduleEntries: "Post Schedule",

@@ -19,7 +19,20 @@ const DAY_LABELS_EN: Record<Day, string> = {
   friday: "F", saturday: "S", sunday: "S",
 };
 
-const GEMINI_MODELS = ["gemini-1.5-flash", "gemini-1.5-pro", "gemini-2.0-flash"];
+const GEMINI_MODELS: { value: string; label: string }[] = [
+  { value: "gemini-1.5-flash", label: "Gemini 1.5 Flash" },
+  { value: "gemini-1.5-pro", label: "Gemini 1.5 Pro" },
+  { value: "gemini-2.0-flash", label: "Gemini 2.0 Flash" },
+  { value: "gemini-3-flash-lite", label: "Gemini 3 Flash-Lite" },
+  { value: "gemini-3-flash", label: "Gemini 3 Flash" },
+  { value: "gemini-3.1-pro", label: "Gemini 3.1 Pro" },
+  { value: "gemini-3.5-flash", label: "Gemini 3.5 Flash" },
+];
+
+const GEMINI_IMAGE_MODELS: { value: string; label: string }[] = [
+  { value: "nano-banana-2", label: "Nano Banana 2" },
+  { value: "nano-banana-pro", label: "Nano Banana Pro" },
+];
 const TIMEZONES = ["Asia/Tokyo", "UTC", "America/New_York", "America/Los_Angeles", "Europe/London"];
 
 const DEFAULT_VALUES: FormValues = {
@@ -29,6 +42,8 @@ const DEFAULT_VALUES: FormValues = {
   rss_feeds: [{ url: "", name: "" }],
   gemini_api_key: "",
   gemini_model: "gemini-1.5-flash",
+  enable_image: false,
+  gemini_image_model: "nano-banana-2",
   slack_webhook_url: "",
   schedule: { timezone: "Asia/Tokyo", entries: [{ days: ["monday"], time: "09:00" }] },
   lookback_days: 1,
@@ -179,8 +194,10 @@ export default function BotFormPage() {
     enabled: isEdit,
   });
 
-  const { register, control, handleSubmit, reset, formState: { errors } } =
+  const { register, control, handleSubmit, reset, watch, formState: { errors } } =
     useForm<FormValues>({ defaultValues: DEFAULT_VALUES });
+
+  const enableImage = watch("enable_image");
 
   useEffect(() => {
     if (existing) {
@@ -260,8 +277,31 @@ export default function BotFormPage() {
           <div>
             <FieldLabel>{t.labelGeminiModel}</FieldLabel>
             <select {...register("gemini_model")} className="select-base w-56">
-              {GEMINI_MODELS.map((m) => <option key={m} value={m}>{m}</option>)}
+              {GEMINI_MODELS.map((m) => <option key={m.value} value={m.value}>{m.label}</option>)}
             </select>
+          </div>
+
+          <div>
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                {...register("enable_image")}
+                className="w-4 h-4 rounded border-zinc-300 text-amber-500 focus:ring-amber-400"
+              />
+              <span className="text-sm font-medium text-zinc-700">{t.labelEnableImage}</span>
+            </label>
+            <p className="text-xs text-zinc-400 mt-1 ml-6">{t.imageHint}</p>
+
+            {enableImage && (
+              <div className="mt-3 ml-6">
+                <FieldLabel>{t.labelImageModel}</FieldLabel>
+                <select {...register("gemini_image_model")} className="select-base w-56">
+                  {GEMINI_IMAGE_MODELS.map((m) => (
+                    <option key={m.value} value={m.value}>{m.label}</option>
+                  ))}
+                </select>
+              </div>
+            )}
           </div>
         </Section>
 
