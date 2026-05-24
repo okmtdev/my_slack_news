@@ -85,7 +85,10 @@ function BotCard({ bot }: { bot: Bot }) {
     },
   });
 
-  const isRunning = runMutation.isPending || testMessageMutation.isPending;
+  const activeRun = runMutation.isPending ? "fullRun" as const
+    : testMessageMutation.isPending ? "sendTest" as const
+    : null;
+  const isRunning = activeRun !== null;
 
   const handleDelete = () => {
     if (confirm(t.confirmDelete(bot.name))) deleteMutation.mutate();
@@ -187,7 +190,7 @@ function BotCard({ bot }: { bot: Bot }) {
         onClose={() => setModalOpen(false)}
         onSendTest={() => testMessageMutation.mutate()}
         onFullRun={() => runMutation.mutate()}
-        running={isRunning}
+        activeRun={activeRun}
       />
     </div>
   );

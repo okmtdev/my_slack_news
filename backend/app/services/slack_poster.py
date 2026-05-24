@@ -31,6 +31,13 @@ def post_to_slack(
     resp.raise_for_status()
 
 
+def post_toggle_notification(webhook_url: str, bot_name: str, enabled: bool) -> None:
+    icon = ":white_check_mark:" if enabled else ":pause_button:"
+    status = "有効化" if enabled else "無効化"
+    text = f"{icon} *ニュースラ*: 「{bot_name}」が{status}されました"
+    post_to_slack(webhook_url, text, "ニュースラ")
+
+
 def build_test_message(bot_name: str, keywords: List[str]) -> str:
     """Compose a simple Slack-ready test message for connection check."""
     now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
