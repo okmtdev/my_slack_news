@@ -25,6 +25,7 @@ const EXCLUDED_PATTERNS = [
 ];
 
 function isUsable(m: GeminiModelInfo): boolean {
+  if (!m.name.startsWith("gemini-")) return false;
   if (!m.supported_actions.includes("generateContent")) return false;
   const name = m.name.toLowerCase();
   return !EXCLUDED_PATTERNS.some((p) => name.includes(p));
