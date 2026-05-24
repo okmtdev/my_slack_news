@@ -18,7 +18,9 @@ export interface Translations {
   labelFeeds: string;
   labelLookback: string;
   btnTestRun: string;
+  btnSendTest: string;
   btnRunning: string;
+  btnSending: string;
   btnEdit: string;
   confirmDelete: (name: string) => string;
   toastDeleted: string;
@@ -69,11 +71,19 @@ export interface Translations {
   pageLogsTitle: string;
   allBots: string;
   colBot: string;
+  colType: string;
   colStatus: string;
   colArticles: string;
+  colSteps: string;
   colMessage: string;
   colTime: string;
   emptyLogs: string;
+  runTypeFullRun: string;
+  runTypeTestMessage: string;
+  stepStatusSuccess: string;
+  stepStatusError: string;
+  stepStatusSkipped: string;
+  durationMs: (ms: number) => string;
 }
 
 export const translations: Record<Lang, Translations> = {
@@ -92,7 +102,9 @@ export const translations: Record<Lang, Translations> = {
     labelFeeds: "フィード",
     labelLookback: "取得期間",
     btnTestRun: "テスト実行",
+    btnSendTest: "送信テスト",
     btnRunning: "実行中...",
+    btnSending: "送信中...",
     btnEdit: "編集",
     confirmDelete: (name) => `「${name}」を削除しますか？`,
     toastDeleted: "Bot を削除しました",
@@ -136,11 +148,19 @@ export const translations: Record<Lang, Translations> = {
     pageLogsTitle: "実行ログ",
     allBots: "全ての Bot",
     colBot: "Bot",
+    colType: "種類",
     colStatus: "ステータス",
     colArticles: "記事数",
+    colSteps: "工程",
     colMessage: "メッセージ",
     colTime: "実行時刻",
     emptyLogs: "実行ログがありません",
+    runTypeFullRun: "本実行",
+    runTypeTestMessage: "送信テスト",
+    stepStatusSuccess: "成功",
+    stepStatusError: "失敗",
+    stepStatusSkipped: "スキップ",
+    durationMs: (ms) => `${ms}ms`,
   },
 
   en: {
@@ -158,7 +178,9 @@ export const translations: Record<Lang, Translations> = {
     labelFeeds: "Feeds",
     labelLookback: "Lookback",
     btnTestRun: "Test Run",
+    btnSendTest: "Send Test",
     btnRunning: "Running...",
+    btnSending: "Sending...",
     btnEdit: "Edit",
     confirmDelete: (name) => `Delete "${name}"?`,
     toastDeleted: "Bot deleted",
@@ -202,10 +224,18 @@ export const translations: Record<Lang, Translations> = {
     pageLogsTitle: "Execution Logs",
     allBots: "All Bots",
     colBot: "Bot",
+    colType: "Type",
     colStatus: "Status",
     colArticles: "Articles",
+    colSteps: "Steps",
     colMessage: "Message",
     colTime: "Executed At",
     emptyLogs: "No execution logs",
+    runTypeFullRun: "Full Run",
+    runTypeTestMessage: "Send Test",
+    stepStatusSuccess: "Success",
+    stepStatusError: "Failed",
+    stepStatusSkipped: "Skipped",
+    durationMs: (ms) => `${ms}ms`,
   },
 };

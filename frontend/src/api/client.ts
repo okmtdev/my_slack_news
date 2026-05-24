@@ -34,6 +34,8 @@ export const api = {
       request<Bot>(`/api/bots/${id}/toggle?enabled=${enabled}`, { method: "PUT" }),
     run: (id: string) =>
       request<RunResult>(`/api/bots/${id}/run`, { method: "POST" }),
+    testMessage: (id: string) =>
+      request<RunResult>(`/api/bots/${id}/test-message`, { method: "POST" }),
   },
   logs: {
     list: (botId?: string, limit = 50) => {

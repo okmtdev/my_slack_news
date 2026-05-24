@@ -65,6 +65,15 @@ function BotCard({ bot }: { bot: Bot }) {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  const testMessageMutation = useMutation({
+    mutationFn: () => api.bots.testMessage(bot.id),
+    onSuccess: (r) => {
+      toast.success(t.toastRunSuccess(r.message));
+      qc.invalidateQueries({ queryKey: ["logs"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
   const handleDelete = () => {
     if (confirm(t.confirmDelete(bot.name))) deleteMutation.mutate();
   };
@@ -134,26 +143,43 @@ function BotCard({ bot }: { bot: Bot }) {
       </div>
 
       {/* Actions */}
-      <div className="px-4 py-3 border-t border-zinc-100 flex items-center gap-2">
-        <button
-          onClick={() => runMutation.mutate()}
-          disabled={runMutation.isPending}
-          className="btn-primary flex-1"
-        >
-          {runMutation.isPending ? t.btnRunning : t.btnTestRun}
-        </button>
-        <Link to={`/bots/${bot.id}/edit`} className="flex-1 text-center text-xs font-semibold px-3 py-1.5 rounded bg-blue-600 text-white hover:bg-blue-700 transition-colors">
-          {t.btnEdit}
-        </Link>
-        <button onClick={handleDelete} className="btn-ghost-danger" title="Delete">
-          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
-            fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <polyline points="3 6 5 6 21 6" />
-            <path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" />
-            <path d="M10 11v6M14 11v6" />
-            <path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2" />
-          </svg>
-        </button>
+      <div className="px-4 py-3 border-t border-zinc-100 flex flex-col gap-2">
+        <div className="flex gap-2">
+          <button
+            onClick={() => testMessageMutation.mutate()}
+            disabled={testMessageMutation.isPending}
+            className="flex-1 text-xs font-semibold px-3 py-1.5 rounded
+                       border border-emerald-200 bg-white text-emerald-700
+                       hover:bg-emerald-50 disabled:opacity-40 transition-colors"
+          >
+            {testMessageMutation.isPending ? t.btnSending : t.btnSendTest}
+          </button>
+          <button
+            onClick={() => runMutation.mutate()}
+            disabled={runMutation.isPending}
+            className="btn-primary flex-1"
+          >
+            {runMutation.isPending ? t.btnRunning : t.btnTestRun}
+          </button>
+        </div>
+        <div className="flex gap-2">
+          <Link
+            to={`/bots/${bot.id}/edit`}
+            className="flex-1 text-center text-xs font-semibold px-3 py-1.5 rounded
+                       bg-blue-600 text-white hover:bg-blue-700 transition-colors"
+          >
+            {t.btnEdit}
+          </Link>
+          <button onClick={handleDelete} className="btn-ghost-danger" title="Delete">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
+              fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="3 6 5 6 21 6" />
+              <path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" />
+              <path d="M10 11v6M14 11v6" />
+              <path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2" />
+            </svg>
+          </button>
+        </div>
       </div>
     </div>
   );
