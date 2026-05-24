@@ -17,6 +17,8 @@ const EXCLUDED_PATTERNS = [
   "image",
   "embedding",
   "aqa",
+  "-1.0",
+  "-1.5",
   "-2.0",
   "flash-lite",
   "flash-8b",
