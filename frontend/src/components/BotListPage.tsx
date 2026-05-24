@@ -1,9 +1,11 @@
+import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import toast from "react-hot-toast";
 import { api } from "../api/client";
 import { useLang } from "../i18n/LangContext";
 import type { Bot } from "../types/bot";
+import TestRunModal from "./TestRunModal";
 
 const DAY_LABELS: Record<string, string> = {
   monday: "月", tuesday: "火", wednesday: "水", thursday: "木",
@@ -40,6 +42,7 @@ function BotCard({ bot }: { bot: Bot }) {
   const qc = useQueryClient();
   const { t, lang } = useLang();
   const dayLabels = lang === "en" ? DAY_LABELS_EN : DAY_LABELS;
+  const [modalOpen, setModalOpen] = useState(false);
 
   const toggleMutation = useMutation({
     mutationFn: () => api.bots.toggle(bot.id, !bot.enabled),
@@ -61,9 +64,28 @@ function BotCard({ bot }: { bot: Bot }) {
     onSuccess: (r) => {
       toast.success(t.toastRunSuccess(r.message));
       qc.invalidateQueries({ queryKey: ["logs"] });
+      setModalOpen(false);
     },
-    onError: (e: Error) => toast.error(e.message),
+    onError: (e: Error) => {
+      toast.error(e.message);
+      setModalOpen(false);
+    },
   });
+
+  const testMessageMutation = useMutation({
+    mutationFn: () => api.bots.testMessage(bot.id),
+    onSuccess: (r) => {
+      toast.success(t.toastRunSuccess(r.message));
+      qc.invalidateQueries({ queryKey: ["logs"] });
+      setModalOpen(false);
+    },
+    onError: (e: Error) => {
+      toast.error(e.message);
+      setModalOpen(false);
+    },
+  });
+
+  const isRunning = runMutation.isPending || testMessageMutation.isPending;
 
   const handleDelete = () => {
     if (confirm(t.confirmDelete(bot.name))) deleteMutation.mutate();
@@ -136,13 +158,17 @@ function BotCard({ bot }: { bot: Bot }) {
       {/* Actions */}
       <div className="px-4 py-3 border-t border-zinc-100 flex items-center gap-2">
         <button
-          onClick={() => runMutation.mutate()}
-          disabled={runMutation.isPending}
+          onClick={() => setModalOpen(true)}
+          disabled={isRunning}
           className="btn-primary flex-1"
         >
-          {runMutation.isPending ? t.btnRunning : t.btnTestRun}
+          {isRunning ? t.btnRunning : t.btnTestRun}
         </button>
-        <Link to={`/bots/${bot.id}/edit`} className="flex-1 text-center text-xs font-semibold px-3 py-1.5 rounded bg-blue-600 text-white hover:bg-blue-700 transition-colors">
+        <Link
+          to={`/bots/${bot.id}/edit`}
+          className="flex-1 text-center text-xs font-semibold px-3 py-1.5 rounded
+                     bg-blue-600 text-white hover:bg-blue-700 transition-colors"
+        >
           {t.btnEdit}
         </Link>
         <button onClick={handleDelete} className="btn-ghost-danger" title="Delete">
@@ -155,6 +181,14 @@ function BotCard({ bot }: { bot: Bot }) {
           </svg>
         </button>
       </div>
+
+      <TestRunModal
+        open={modalOpen}
+        onClose={() => setModalOpen(false)}
+        onSendTest={() => testMessageMutation.mutate()}
+        onFullRun={() => runMutation.mutate()}
+        running={isRunning}
+      />
     </div>
   );
 }

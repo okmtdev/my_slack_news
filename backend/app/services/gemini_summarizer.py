@@ -2,28 +2,27 @@ from __future__ import annotations
 
 from typing import List
 
-import google.generativeai as genai
+from google import genai
 
 
 def summarize(
     articles: List[dict],
     keywords: List[str],
     api_key: str,
-    model_name: str = "gemini-1.5-flash",
+    model_name: str = "gemini-2.5-flash",
 ) -> str:
-    genai.configure(api_key=api_key)
-    model = genai.GenerativeModel(model_name)
+    client = genai.Client(api_key=api_key)
 
     articles_text = "\n".join(
         f"- [{a['source']}] {a['title']}\n  {a['summary']}\n  URL: {a['link']}"
         for a in articles[:20]  # limit to avoid token overflow
     )
 
+    keyword_section = f"キーワード: {', '.join(keywords)}\n\n" if keywords else ""
+
     prompt = f"""以下のニュース記事を日本語でまとめてSlackに投稿する文章を作成してください。
 
-キーワード: {', '.join(keywords)}
-
-記事一覧:
+{keyword_section}記事一覧:
 {articles_text}
 
 要件:
@@ -33,5 +32,8 @@ def summarize(
 - 絵文字を適度に使い読みやすくする
 - 日本語で回答する"""
 
-    response = model.generate_content(prompt)
-    return response.text
+    response = client.models.generate_content(
+        model=model_name,
+        contents=prompt,
+    )
+    return response.text or ""

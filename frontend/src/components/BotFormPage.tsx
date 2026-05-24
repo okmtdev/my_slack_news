@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useForm, useFieldArray, Controller } from "react-hook-form";
 import { useNavigate, useParams } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -6,6 +6,7 @@ import toast from "react-hot-toast";
 import { api } from "../api/client";
 import { useLang } from "../i18n/LangContext";
 import type { Bot, Day } from "../types/bot";
+import GeminiModelsModal from "./GeminiModelsModal";
 
 type FormValues = Omit<Bot, "id" | "created_at" | "updated_at">;
 
@@ -19,16 +20,28 @@ const DAY_LABELS_EN: Record<Day, string> = {
   friday: "F", saturday: "S", sunday: "S",
 };
 
-const GEMINI_MODELS = ["gemini-1.5-flash", "gemini-1.5-pro", "gemini-2.0-flash"];
+const GEMINI_MODELS: { value: string; label: string }[] = [
+  { value: "gemini-2.5-flash", label: "Gemini 2.5 Flash" },
+  { value: "gemini-2.5-pro", label: "Gemini 2.5 Pro" },
+  { value: "gemini-1.5-flash", label: "Gemini 1.5 Flash" },
+  { value: "gemini-1.5-pro", label: "Gemini 1.5 Pro" },
+];
+
+const GEMINI_IMAGE_MODELS: { value: string; label: string }[] = [
+  { value: "gemini-2.5-flash-image-preview", label: "Nano Banana 2 (gemini-2.5-flash-image-preview)" },
+  { value: "gemini-2.5-flash-image", label: "Nano Banana Pro (gemini-2.5-flash-image)" },
+];
 const TIMEZONES = ["Asia/Tokyo", "UTC", "America/New_York", "America/Los_Angeles", "Europe/London"];
 
 const DEFAULT_VALUES: FormValues = {
   name: "",
   enabled: true,
-  keywords: [""],
+  keywords: [],
   rss_feeds: [{ url: "", name: "" }],
   gemini_api_key: "",
-  gemini_model: "gemini-1.5-flash",
+  gemini_model: "gemini-2.5-flash",
+  enable_image: false,
+  gemini_image_model: "gemini-2.5-flash-image-preview",
   slack_webhook_url: "",
   schedule: { timezone: "Asia/Tokyo", entries: [{ days: ["monday"], time: "09:00" }] },
   lookback_days: 1,
@@ -47,16 +60,14 @@ function KeywordsField({ control, register }: { control: any; register: any }) {
   const { fields, append, remove } = useFieldArray({ control, name: "keywords" });
   return (
     <div>
-      <FieldLabel required>{t.labelKeywordsField}</FieldLabel>
+      <FieldLabel>{t.labelKeywordsField}</FieldLabel>
       <div className="flex flex-col gap-2">
         {fields.map((field, i) => (
           <div key={field.id} className="flex gap-2">
-            <input {...register(`keywords.${i}` as const, { required: true })}
+            <input {...register(`keywords.${i}` as const)}
               className="input-base flex-1" placeholder={t.phKeyword} />
-            {fields.length > 1 && (
-              <button type="button" onClick={() => remove(i)}
-                className="px-2 text-zinc-300 hover:text-red-400 transition-colors text-base leading-none">×</button>
-            )}
+            <button type="button" onClick={() => remove(i)}
+              className="px-2 text-zinc-300 hover:text-red-400 transition-colors text-base leading-none">×</button>
           </div>
         ))}
       </div>
@@ -64,6 +75,7 @@ function KeywordsField({ control, register }: { control: any; register: any }) {
         className="mt-2 text-xs font-semibold text-amber-600 hover:text-amber-700 transition-colors">
         {t.addKeyword}
       </button>
+      <p className="text-xs text-zinc-400 mt-1.5">{t.keywordsHint}</p>
     </div>
   );
 }
@@ -180,8 +192,13 @@ export default function BotFormPage() {
     enabled: isEdit,
   });
 
-  const { register, control, handleSubmit, reset, formState: { errors } } =
+  const { register, control, handleSubmit, reset, watch, setValue, formState: { errors } } =
     useForm<FormValues>({ defaultValues: DEFAULT_VALUES });
+
+  const enableImage = watch("enable_image");
+  const currentApiKey = watch("gemini_api_key");
+  const [modelsModalOpen, setModelsModalOpen] = useState(false);
+  const [modelsModalTarget, setModelsModalTarget] = useState<"gemini_model" | "gemini_image_model">("gemini_model");
 
   useEffect(() => {
     if (existing) {
@@ -260,9 +277,64 @@ export default function BotFormPage() {
           </div>
           <div>
             <FieldLabel>{t.labelGeminiModel}</FieldLabel>
-            <select {...register("gemini_model")} className="select-base w-56">
-              {GEMINI_MODELS.map((m) => <option key={m} value={m}>{m}</option>)}
-            </select>
+            <div className="flex items-center gap-2">
+              <input
+                list="gemini-text-models"
+                {...register("gemini_model")}
+                className="input-base mono w-72"
+                placeholder="gemini-2.5-flash"
+              />
+              <datalist id="gemini-text-models">
+                {GEMINI_MODELS.map((m) => (
+                  <option key={m.value} value={m.value}>{m.label}</option>
+                ))}
+              </datalist>
+              <button
+                type="button"
+                onClick={() => { setModelsModalTarget("gemini_model"); setModelsModalOpen(true); }}
+                className="text-xs font-semibold text-amber-600 hover:text-amber-700 transition-colors whitespace-nowrap"
+              >
+                {t.btnShowGeminiModels}
+              </button>
+            </div>
+          </div>
+
+          <div>
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                {...register("enable_image")}
+                className="w-4 h-4 rounded border-zinc-300 text-amber-500 focus:ring-amber-400"
+              />
+              <span className="text-sm font-medium text-zinc-700">{t.labelEnableImage}</span>
+            </label>
+            <p className="text-xs text-zinc-400 mt-1 ml-6">{t.imageHint}</p>
+
+            {enableImage && (
+              <div className="mt-3 ml-6">
+                <FieldLabel>{t.labelImageModel}</FieldLabel>
+                <div className="flex items-center gap-2">
+                  <input
+                    list="gemini-image-models"
+                    {...register("gemini_image_model")}
+                    className="input-base mono w-72"
+                    placeholder="gemini-2.5-flash-image-preview"
+                  />
+                  <datalist id="gemini-image-models">
+                    {GEMINI_IMAGE_MODELS.map((m) => (
+                      <option key={m.value} value={m.value}>{m.label}</option>
+                    ))}
+                  </datalist>
+                  <button
+                    type="button"
+                    onClick={() => { setModelsModalTarget("gemini_image_model"); setModelsModalOpen(true); }}
+                    className="text-xs font-semibold text-amber-600 hover:text-amber-700 transition-colors whitespace-nowrap"
+                  >
+                    {t.btnShowGeminiModels}
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </Section>
 
@@ -300,6 +372,17 @@ export default function BotFormPage() {
           </button>
         </div>
       </form>
+
+      <GeminiModelsModal
+        open={modelsModalOpen}
+        apiKey={currentApiKey ?? ""}
+        initialFilter={modelsModalTarget === "gemini_image_model" ? "image" : "text"}
+        onClose={() => setModelsModalOpen(false)}
+        onSelect={(modelName) => {
+          setValue(modelsModalTarget, modelName, { shouldDirty: true });
+          setModelsModalOpen(false);
+        }}
+      />
     </div>
   );
 }

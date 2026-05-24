@@ -7,7 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
 from app.models import HealthResponse
-from app.routers import bots, logs
+from app.routers import bots, gemini, images, logs
 from app.services import scheduler as sched
 from app.storage import yaml_store
 
@@ -33,6 +33,8 @@ app.add_middleware(
 
 app.include_router(bots.router)
 app.include_router(logs.router)
+app.include_router(images.router)
+app.include_router(gemini.router)
 
 
 @app.get("/health", response_model=HealthResponse)

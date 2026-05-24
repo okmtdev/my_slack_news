@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from app.dependencies import require_auth
 from app.models import Bot, BotCreate, BotListResponse, BotUpdate, RunResult
 from app.services import scheduler as sched
-from app.services.bot_runner import run_bot
+from app.services.bot_runner import run_bot, test_message
 from app.storage import yaml_store
 
 router = APIRouter(prefix="/api/bots", tags=["bots"])
@@ -62,4 +62,13 @@ def run_bot_now(bot_id: str, _: None = Depends(require_auth)):
     if not bot:
         raise HTTPException(status_code=404, detail="Bot not found")
     result = run_bot(bot_id)
+    return result
+
+
+@router.post("/{bot_id}/test-message", response_model=RunResult)
+def send_test_message(bot_id: str, _: None = Depends(require_auth)):
+    bot = yaml_store.get_bot(bot_id)
+    if not bot:
+        raise HTTPException(status_code=404, detail="Bot not found")
+    result = test_message(bot_id)
     return result
