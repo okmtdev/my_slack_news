@@ -68,3 +68,10 @@ export interface RunResult {
   articles_count: number;
   steps: LogStep[];
 }
+
+export interface GeminiModelInfo {
+  name: string;
+  display_name: string;
+  description: string;
+  supported_actions: string[];
+}

@@ -1,4 +1,4 @@
-import type { Bot, ExecutionLog, RunResult } from "../types/bot";
+import type { Bot, ExecutionLog, GeminiModelInfo, RunResult } from "../types/bot";
 
 const BASE = import.meta.env.VITE_API_BASE ?? "";
 
@@ -43,6 +43,13 @@ export const api = {
       if (botId) params.set("bot_id", botId);
       return request<{ logs: ExecutionLog[]; total: number }>(`/api/logs?${params}`);
     },
+  },
+  gemini: {
+    listModels: (apiKey: string) =>
+      request<{ models: GeminiModelInfo[] }>("/api/gemini/list-models", {
+        method: "POST",
+        body: JSON.stringify({ api_key: apiKey }),
+      }),
   },
 };
 

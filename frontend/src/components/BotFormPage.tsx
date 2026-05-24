@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useForm, useFieldArray, Controller } from "react-hook-form";
 import { useNavigate, useParams } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -6,6 +6,7 @@ import toast from "react-hot-toast";
 import { api } from "../api/client";
 import { useLang } from "../i18n/LangContext";
 import type { Bot, Day } from "../types/bot";
+import GeminiModelsModal from "./GeminiModelsModal";
 
 type FormValues = Omit<Bot, "id" | "created_at" | "updated_at">;
 
@@ -197,10 +198,13 @@ export default function BotFormPage() {
     enabled: isEdit,
   });
 
-  const { register, control, handleSubmit, reset, watch, formState: { errors } } =
+  const { register, control, handleSubmit, reset, watch, setValue, formState: { errors } } =
     useForm<FormValues>({ defaultValues: DEFAULT_VALUES });
 
   const enableImage = watch("enable_image");
+  const currentApiKey = watch("gemini_api_key");
+  const [modelsModalOpen, setModelsModalOpen] = useState(false);
+  const [modelsModalTarget, setModelsModalTarget] = useState<"gemini_model" | "gemini_image_model">("gemini_model");
 
   useEffect(() => {
     if (existing) {
@@ -279,9 +283,26 @@ export default function BotFormPage() {
           </div>
           <div>
             <FieldLabel>{t.labelGeminiModel}</FieldLabel>
-            <select {...register("gemini_model")} className="select-base w-56">
-              {GEMINI_MODELS.map((m) => <option key={m.value} value={m.value}>{m.label}</option>)}
-            </select>
+            <div className="flex items-center gap-2">
+              <input
+                list="gemini-text-models"
+                {...register("gemini_model")}
+                className="input-base mono w-72"
+                placeholder="gemini-2.5-flash"
+              />
+              <datalist id="gemini-text-models">
+                {GEMINI_MODELS.map((m) => (
+                  <option key={m.value} value={m.value}>{m.label}</option>
+                ))}
+              </datalist>
+              <button
+                type="button"
+                onClick={() => { setModelsModalTarget("gemini_model"); setModelsModalOpen(true); }}
+                className="text-xs font-semibold text-amber-600 hover:text-amber-700 transition-colors whitespace-nowrap"
+              >
+                {t.btnShowGeminiModels}
+              </button>
+            </div>
           </div>
 
           <div>
@@ -298,11 +319,26 @@ export default function BotFormPage() {
             {enableImage && (
               <div className="mt-3 ml-6">
                 <FieldLabel>{t.labelImageModel}</FieldLabel>
-                <select {...register("gemini_image_model")} className="select-base w-56">
-                  {GEMINI_IMAGE_MODELS.map((m) => (
-                    <option key={m.value} value={m.value}>{m.label}</option>
-                  ))}
-                </select>
+                <div className="flex items-center gap-2">
+                  <input
+                    list="gemini-image-models"
+                    {...register("gemini_image_model")}
+                    className="input-base mono w-72"
+                    placeholder="gemini-2.5-flash-image-preview"
+                  />
+                  <datalist id="gemini-image-models">
+                    {GEMINI_IMAGE_MODELS.map((m) => (
+                      <option key={m.value} value={m.value}>{m.label}</option>
+                    ))}
+                  </datalist>
+                  <button
+                    type="button"
+                    onClick={() => { setModelsModalTarget("gemini_image_model"); setModelsModalOpen(true); }}
+                    className="text-xs font-semibold text-amber-600 hover:text-amber-700 transition-colors whitespace-nowrap"
+                  >
+                    {t.btnShowGeminiModels}
+                  </button>
+                </div>
               </div>
             )}
           </div>
@@ -342,6 +378,17 @@ export default function BotFormPage() {
           </button>
         </div>
       </form>
+
+      <GeminiModelsModal
+        open={modelsModalOpen}
+        apiKey={currentApiKey ?? ""}
+        initialFilter={modelsModalTarget === "gemini_image_model" ? "image" : "text"}
+        onClose={() => setModelsModalOpen(false)}
+        onSelect={(modelName) => {
+          setValue(modelsModalTarget, modelName, { shouldDirty: true });
+          setModelsModalOpen(false);
+        }}
+      />
     </div>
   );
 }
