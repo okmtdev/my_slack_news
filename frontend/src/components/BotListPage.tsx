@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { api } from "../api/client";
 import { useLang } from "../i18n/LangContext";
@@ -40,9 +40,12 @@ function Toggle({ enabled, loading, onToggle }: {
 
 function BotCard({ bot }: { bot: Bot }) {
   const qc = useQueryClient();
+  const navigate = useNavigate();
   const { t, lang } = useLang();
   const dayLabels = lang === "en" ? DAY_LABELS_EN : DAY_LABELS;
   const [modalOpen, setModalOpen] = useState(false);
+  const [activeRun, setActiveRun] = useState<"sendTest" | "fullRun" | null>(null);
+  const isRunning = activeRun !== null;
 
   const toggleMutation = useMutation({
     mutationFn: () => api.bots.toggle(bot.id, !bot.enabled),
@@ -64,10 +67,13 @@ function BotCard({ bot }: { bot: Bot }) {
     onSuccess: (r) => {
       toast.success(t.toastRunSuccess(r.message));
       qc.invalidateQueries({ queryKey: ["logs"] });
+      setActiveRun(null);
       setModalOpen(false);
+      navigate("/logs");
     },
     onError: (e: Error) => {
       toast.error(e.message);
+      setActiveRun(null);
       setModalOpen(false);
     },
   });
@@ -77,15 +83,25 @@ function BotCard({ bot }: { bot: Bot }) {
     onSuccess: (r) => {
       toast.success(t.toastRunSuccess(r.message));
       qc.invalidateQueries({ queryKey: ["logs"] });
+      setActiveRun(null);
       setModalOpen(false);
     },
     onError: (e: Error) => {
       toast.error(e.message);
+      setActiveRun(null);
       setModalOpen(false);
     },
   });
 
-  const isRunning = runMutation.isPending || testMessageMutation.isPending;
+  const handleFullRun = () => {
+    setActiveRun("fullRun");
+    runMutation.mutate();
+  };
+
+  const handleSendTest = () => {
+    setActiveRun("sendTest");
+    testMessageMutation.mutate();
+  };
 
   const handleDelete = () => {
     if (confirm(t.confirmDelete(bot.name))) deleteMutation.mutate();
@@ -185,9 +201,9 @@ function BotCard({ bot }: { bot: Bot }) {
       <TestRunModal
         open={modalOpen}
         onClose={() => setModalOpen(false)}
-        onSendTest={() => testMessageMutation.mutate()}
-        onFullRun={() => runMutation.mutate()}
-        running={isRunning}
+        onSendTest={handleSendTest}
+        onFullRun={handleFullRun}
+        activeRun={activeRun}
       />
     </div>
   );

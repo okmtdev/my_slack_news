@@ -6,6 +6,7 @@ from app.dependencies import require_auth
 from app.models import Bot, BotCreate, BotListResponse, BotUpdate, RunResult
 from app.services import scheduler as sched
 from app.services.bot_runner import run_bot, test_message
+from app.services.slack_poster import post_toggle_notification
 from app.storage import yaml_store
 
 router = APIRouter(prefix="/api/bots", tags=["bots"])
@@ -53,6 +54,11 @@ def toggle_bot(bot_id: str, enabled: bool, _: None = Depends(require_auth)):
     if not bot:
         raise HTTPException(status_code=404, detail="Bot not found")
     sched.update_bot_schedule(bot)
+    if bot.slack_webhook_url:
+        try:
+            post_toggle_notification(bot.slack_webhook_url, bot.name, enabled)
+        except Exception:
+            pass
     return bot
 
 

@@ -1,41 +1,37 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useEffect } from "react";
 import { api } from "../api/client";
 import { useLang } from "../i18n/LangContext";
 import type { GeminiModelInfo } from "../types/bot";
 
-type Filter = "all" | "text" | "image";
-
 interface Props {
   open: boolean;
   apiKey: string;
-  initialFilter?: Filter;
   onClose: () => void;
   onSelect: (modelName: string) => void;
 }
 
-function isImageModel(m: GeminiModelInfo): boolean {
-  return m.name.includes("image") ||
-    m.supported_actions.some((a) => a.toLowerCase().includes("image"));
+const EXCLUDED_PATTERNS = [
+  "tts",
+  "image",
+  "embedding",
+  "aqa",
+  "-1.0",
+  "-1.5",
+  "-2.0",
+  "flash-lite",
+  "flash-8b",
+];
+
+function isUsable(m: GeminiModelInfo): boolean {
+  if (!m.supported_actions.includes("generateContent")) return false;
+  const name = m.name.toLowerCase();
+  return !EXCLUDED_PATTERNS.some((p) => name.includes(p));
 }
 
-function isTextModel(m: GeminiModelInfo): boolean {
-  return m.supported_actions.includes("generateContent") && !isImageModel(m);
-}
-
-export default function GeminiModelsModal({
-  open,
-  apiKey,
-  initialFilter = "all",
-  onClose,
-  onSelect,
-}: Props) {
+export default function GeminiModelsModal({ open, apiKey, onClose, onSelect }: Props) {
   const { t } = useLang();
-  const [filter, setFilter] = useState<Filter>(initialFilter);
-
-  useEffect(() => {
-    if (open) setFilter(initialFilter);
-  }, [open, initialFilter]);
 
   useEffect(() => {
     if (!open) return;
@@ -53,12 +49,10 @@ export default function GeminiModelsModal({
     staleTime: 60_000,
   });
 
-  const filteredModels = useMemo(() => {
+  const models = useMemo(() => {
     if (!data?.models) return [];
-    if (filter === "all") return data.models;
-    if (filter === "image") return data.models.filter(isImageModel);
-    return data.models.filter(isTextModel);
-  }, [data, filter]);
+    return data.models.filter(isUsable);
+  }, [data]);
 
   if (!open) return null;
 
@@ -71,35 +65,15 @@ export default function GeminiModelsModal({
         className="bg-white rounded-xl shadow-xl w-full max-w-2xl max-h-[80vh] flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="px-6 pt-6 pb-4 border-b border-zinc-100">
-          <div className="flex items-start justify-between mb-3">
-            <h2 className="text-lg font-bold text-zinc-900">{t.modelsModalTitle}</h2>
-            <button
-              onClick={onClose}
-              className="text-zinc-400 hover:text-zinc-700 transition-colors text-lg leading-none"
-              aria-label="Close"
-            >
-              ✕
-            </button>
-          </div>
-
-          <div className="flex gap-1">
-            {(["all", "text", "image"] as Filter[]).map((f) => (
-              <button
-                key={f}
-                onClick={() => setFilter(f)}
-                className={`text-xs font-semibold px-3 py-1.5 rounded transition-colors ${
-                  filter === f
-                    ? "bg-zinc-900 text-white"
-                    : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200"
-                }`}
-              >
-                {f === "all" ? t.modelsModalFilterAll
-                  : f === "text" ? t.modelsModalFilterText
-                  : t.modelsModalFilterImage}
-              </button>
-            ))}
-          </div>
+        <div className="px-6 pt-6 pb-4 border-b border-zinc-100 flex items-center justify-between">
+          <h2 className="text-lg font-bold text-zinc-900">{t.modelsModalTitle}</h2>
+          <button
+            onClick={onClose}
+            className="text-zinc-400 hover:text-zinc-700 transition-colors text-lg leading-none"
+            aria-label="Close"
+          >
+            ✕
+          </button>
         </div>
 
         <div className="flex-1 overflow-y-auto px-6 py-4">
@@ -112,12 +86,12 @@ export default function GeminiModelsModal({
           {apiKey && error && (
             <p className="text-sm text-red-500 text-center py-8">{(error as Error).message}</p>
           )}
-          {apiKey && data && filteredModels.length === 0 && (
+          {apiKey && data && models.length === 0 && (
             <p className="text-sm text-zinc-500 text-center py-8">{t.modelsModalEmpty}</p>
           )}
-          {apiKey && data && filteredModels.length > 0 && (
+          {apiKey && data && models.length > 0 && (
             <div className="flex flex-col gap-2">
-              {filteredModels.map((m) => (
+              {models.map((m) => (
                 <button
                   key={m.name}
                   onClick={() => onSelect(m.name)}

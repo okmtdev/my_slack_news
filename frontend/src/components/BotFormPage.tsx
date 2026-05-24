@@ -21,21 +21,8 @@ const DAY_LABELS_EN: Record<Day, string> = {
 };
 
 const GEMINI_MODELS: { value: string; label: string }[] = [
-  // Recommended / current
   { value: "gemini-2.5-flash", label: "Gemini 2.5 Flash" },
   { value: "gemini-2.5-pro", label: "Gemini 2.5 Pro" },
-  { value: "gemini-2.5-flash-lite", label: "Gemini 2.5 Flash-Lite" },
-  { value: "gemini-2.0-flash", label: "Gemini 2.0 Flash" },
-  // User-specified next-gen (may require account access)
-  { value: "gemini-3-flash-lite", label: "Gemini 3 Flash-Lite" },
-  { value: "gemini-3-flash", label: "Gemini 3 Flash" },
-  { value: "gemini-3.1-pro", label: "Gemini 3.1 Pro" },
-  { value: "gemini-3.5-flash", label: "Gemini 3.5 Flash" },
-];
-
-const GEMINI_IMAGE_MODELS: { value: string; label: string }[] = [
-  { value: "gemini-2.5-flash-image-preview", label: "Nano Banana 2 (gemini-2.5-flash-image-preview)" },
-  { value: "gemini-2.5-flash-image", label: "Nano Banana Pro (gemini-2.5-flash-image)" },
 ];
 const TIMEZONES = ["Asia/Tokyo", "UTC", "America/New_York", "America/Los_Angeles", "Europe/London"];
 
@@ -46,8 +33,6 @@ const DEFAULT_VALUES: FormValues = {
   rss_feeds: [{ url: "", name: "" }],
   gemini_api_key: "",
   gemini_model: "gemini-2.5-flash",
-  enable_image: false,
-  gemini_image_model: "gemini-2.5-flash-image-preview",
   slack_webhook_url: "",
   schedule: { timezone: "Asia/Tokyo", entries: [{ days: ["monday"], time: "09:00" }] },
   lookback_days: 1,
@@ -201,10 +186,8 @@ export default function BotFormPage() {
   const { register, control, handleSubmit, reset, watch, setValue, formState: { errors } } =
     useForm<FormValues>({ defaultValues: DEFAULT_VALUES });
 
-  const enableImage = watch("enable_image");
   const currentApiKey = watch("gemini_api_key");
   const [modelsModalOpen, setModelsModalOpen] = useState(false);
-  const [modelsModalTarget, setModelsModalTarget] = useState<"gemini_model" | "gemini_image_model">("gemini_model");
 
   useEffect(() => {
     if (existing) {
@@ -297,50 +280,12 @@ export default function BotFormPage() {
               </datalist>
               <button
                 type="button"
-                onClick={() => { setModelsModalTarget("gemini_model"); setModelsModalOpen(true); }}
+                onClick={() => setModelsModalOpen(true)}
                 className="text-xs font-semibold text-amber-600 hover:text-amber-700 transition-colors whitespace-nowrap"
               >
                 {t.btnShowGeminiModels}
               </button>
             </div>
-          </div>
-
-          <div>
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input
-                type="checkbox"
-                {...register("enable_image")}
-                className="w-4 h-4 rounded border-zinc-300 text-amber-500 focus:ring-amber-400"
-              />
-              <span className="text-sm font-medium text-zinc-700">{t.labelEnableImage}</span>
-            </label>
-            <p className="text-xs text-zinc-400 mt-1 ml-6">{t.imageHint}</p>
-
-            {enableImage && (
-              <div className="mt-3 ml-6">
-                <FieldLabel>{t.labelImageModel}</FieldLabel>
-                <div className="flex items-center gap-2">
-                  <input
-                    list="gemini-image-models"
-                    {...register("gemini_image_model")}
-                    className="input-base mono w-72"
-                    placeholder="gemini-2.5-flash-image-preview"
-                  />
-                  <datalist id="gemini-image-models">
-                    {GEMINI_IMAGE_MODELS.map((m) => (
-                      <option key={m.value} value={m.value}>{m.label}</option>
-                    ))}
-                  </datalist>
-                  <button
-                    type="button"
-                    onClick={() => { setModelsModalTarget("gemini_image_model"); setModelsModalOpen(true); }}
-                    className="text-xs font-semibold text-amber-600 hover:text-amber-700 transition-colors whitespace-nowrap"
-                  >
-                    {t.btnShowGeminiModels}
-                  </button>
-                </div>
-              </div>
-            )}
           </div>
         </Section>
 
@@ -382,10 +327,9 @@ export default function BotFormPage() {
       <GeminiModelsModal
         open={modelsModalOpen}
         apiKey={currentApiKey ?? ""}
-        initialFilter={modelsModalTarget === "gemini_image_model" ? "image" : "text"}
         onClose={() => setModelsModalOpen(false)}
         onSelect={(modelName) => {
-          setValue(modelsModalTarget, modelName, { shouldDirty: true });
+          setValue("gemini_model", modelName, { shouldDirty: true });
           setModelsModalOpen(false);
         }}
       />

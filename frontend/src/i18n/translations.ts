@@ -41,18 +41,12 @@ export interface Translations {
   lookbackHint: string;
   labelGeminiKey: string;
   labelGeminiModel: string;
-  labelEnableImage: string;
-  labelImageModel: string;
-  imageHint: string;
   btnShowGeminiModels: string;
   modelsModalTitle: string;
   modelsModalEnterKey: string;
   modelsModalFetching: string;
   modelsModalEmpty: string;
   modelsModalSupports: string;
-  modelsModalFilterText: string;
-  modelsModalFilterImage: string;
-  modelsModalFilterAll: string;
   labelSlackWebhook: string;
   labelTimezone: string;
   labelScheduleEntries: string;
@@ -142,18 +136,12 @@ export const translations: Record<Lang, Translations> = {
     lookbackHint: "週次実行なら 7 を推奨",
     labelGeminiKey: "API キー",
     labelGeminiModel: "テキスト要約モデル",
-    labelEnableImage: "画像も投稿する",
-    labelImageModel: "画像生成モデル",
-    imageHint: "Geminiで生成した画像をサマリーと一緒にSlackへ投稿します。サーバーの PUBLIC_BASE_URL（HTTPS の公開URL）が設定されている必要があります。",
     btnShowGeminiModels: "利用可能なモデルを確認",
     modelsModalTitle: "利用可能な Gemini モデル",
     modelsModalEnterKey: "API キーを入力してから開いてください",
     modelsModalFetching: "取得中...",
     modelsModalEmpty: "モデルが見つかりませんでした",
     modelsModalSupports: "対応操作",
-    modelsModalFilterText: "テキスト",
-    modelsModalFilterImage: "画像",
-    modelsModalFilterAll: "すべて",
     labelSlackWebhook: "Incoming Webhook URL",
     labelTimezone: "タイムゾーン",
     labelScheduleEntries: "投稿スケジュール",
@@ -237,18 +225,12 @@ export const translations: Record<Lang, Translations> = {
     lookbackHint: "Use 7 for weekly runs",
     labelGeminiKey: "API Key",
     labelGeminiModel: "Text Summarization Model",
-    labelEnableImage: "Also post an image",
-    labelImageModel: "Image Generation Model",
-    imageHint: "Generates an image with Gemini and posts it alongside the summary. PUBLIC_BASE_URL (a public HTTPS URL of this server) must be configured.",
     btnShowGeminiModels: "Show available models",
     modelsModalTitle: "Available Gemini Models",
     modelsModalEnterKey: "Enter your API key first",
     modelsModalFetching: "Fetching...",
     modelsModalEmpty: "No models found",
     modelsModalSupports: "Supports",
-    modelsModalFilterText: "Text",
-    modelsModalFilterImage: "Image",
-    modelsModalFilterAll: "All",
     labelSlackWebhook: "Incoming Webhook URL",
     labelTimezone: "Timezone",
     labelScheduleEntries: "Post Schedule",

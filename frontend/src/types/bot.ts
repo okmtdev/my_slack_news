@@ -30,8 +30,6 @@ export interface Bot {
   rss_feeds: RSSFeed[];
   gemini_api_key: string;
   gemini_model: string;
-  enable_image: boolean;
-  gemini_image_model: string;
   slack_webhook_url: string;
   schedule: BotSchedule;
   lookback_days: number;
