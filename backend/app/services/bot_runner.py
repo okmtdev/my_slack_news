@@ -6,9 +6,7 @@ from datetime import datetime, timezone
 from typing import List
 
 from app.models import ExecutionLog, LogStep, RunResult
-from app.services.gemini_image import build_image_prompt, generate_image
 from app.services.gemini_summarizer import summarize
-from app.services.image_storage import public_image_url, save_image
 from app.services.news_fetcher import fetch_articles
 from app.services.slack_poster import build_test_message, post_to_slack
 from app.storage import yaml_store
@@ -63,12 +61,6 @@ def run_bot(bot_id: str) -> RunResult:
             message="該当記事なしのためスキップ",
         ))
         steps.append(LogStep(
-            name="generate_image",
-            label="画像生成",
-            status="skipped",
-            message="該当記事なしのためスキップ",
-        ))
-        steps.append(LogStep(
             name="post_slack",
             label="Slack投稿",
             status="skipped",
@@ -102,12 +94,6 @@ def run_bot(bot_id: str) -> RunResult:
             duration_ms=int((time.time() - start) * 1000),
         ))
         steps.append(LogStep(
-            name="generate_image",
-            label="画像生成",
-            status="skipped",
-            message="前工程の失敗によりスキップ",
-        ))
-        steps.append(LogStep(
             name="post_slack",
             label="Slack投稿",
             status="skipped",
@@ -117,57 +103,15 @@ def run_bot(bot_id: str) -> RunResult:
         _save_log(bot, "full_run", "error", msg, len(articles), steps)
         return RunResult(success=False, message=msg, articles_count=len(articles), steps=steps)
 
-    # Step 3 (optional): Generate header image
-    image_url: str | None = None
-    if bot.enable_image:
-        start = time.time()
-        try:
-            image_prompt = build_image_prompt(bot.keywords, articles)
-            image_bytes = generate_image(image_prompt, bot.gemini_api_key, bot.gemini_image_model)
-            filename = save_image(image_bytes)
-            image_url = public_image_url(filename)
-            if image_url:
-                msg_text = f"画像を生成しました（{bot.gemini_image_model}）"
-                step_status = "success"
-            else:
-                msg_text = (
-                    "画像を生成しましたが PUBLIC_BASE_URL が未設定のため "
-                    "Slack には添付しません（テキストのみ投稿）"
-                )
-                step_status = "error"
-            steps.append(LogStep(
-                name="generate_image",
-                label="画像生成",
-                status=step_status,
-                message=msg_text,
-                duration_ms=int((time.time() - start) * 1000),
-            ))
-        except Exception as e:
-            steps.append(LogStep(
-                name="generate_image",
-                label="画像生成",
-                status="error",
-                message=f"画像生成に失敗（テキストのみ投稿します）: {e}",
-                duration_ms=int((time.time() - start) * 1000),
-            ))
-            image_url = None
-    else:
-        steps.append(LogStep(
-            name="generate_image",
-            label="画像生成",
-            status="skipped",
-            message="画像投稿が無効のためスキップ",
-        ))
-
-    # Step 4: Post to Slack
+    # Step 3: Post to Slack
     start = time.time()
     try:
-        post_to_slack(bot.slack_webhook_url, summary, bot.name, image_url=image_url)
+        post_to_slack(bot.slack_webhook_url, summary, bot.name)
         steps.append(LogStep(
             name="post_slack",
             label="Slack投稿",
             status="success",
-            message="Slack に投稿しました" + ("（画像付き）" if image_url else ""),
+            message="Slack に投稿しました",
             duration_ms=int((time.time() - start) * 1000),
         ))
     except Exception as e:

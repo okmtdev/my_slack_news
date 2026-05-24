@@ -10,23 +10,12 @@ def post_to_slack(
     webhook_url: str,
     text: str,
     bot_name: str = "News Bot",
-    image_url: str | None = None,
 ) -> None:
     payload: dict = {
         "username": bot_name,
         "icon_emoji": ":newspaper:",
+        "text": text,
     }
-
-    if image_url:
-        # Slack block kit message: section (text) + image
-        payload["text"] = text  # fallback for clients that can't render blocks
-        payload["blocks"] = [
-            {"type": "section", "text": {"type": "mrkdwn", "text": text}},
-            {"type": "image", "image_url": image_url, "alt_text": "News illustration"},
-        ]
-    else:
-        payload["text"] = text
-
     resp = requests.post(webhook_url, json=payload, timeout=10)
     resp.raise_for_status()
 
